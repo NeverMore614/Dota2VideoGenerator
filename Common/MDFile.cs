@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace MetaDota.Common
 {
-    internal class MDFileReader
+    internal class MDFile
     {
         public static string ReadLine(string path, ref string result)
         {
@@ -21,6 +21,11 @@ namespace MetaDota.Common
                 Console.WriteLine(e);
             }
             return result;
+        }
+
+        public static bool FileExists(string path)
+        { 
+            return File.Exists(path);
         }
     }
 }

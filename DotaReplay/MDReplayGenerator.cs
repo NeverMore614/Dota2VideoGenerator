@@ -1,4 +1,5 @@
-﻿using SteamKit2.GC.Dota.Internal;
+﻿using MetaDota.Common;
+using SteamKit2.GC.Dota.Internal;
 using SteamKit2.Internal;
 using System;
 using System.Collections.Generic;
@@ -9,9 +10,7 @@ using System.Threading.Tasks;
 
 namespace MetaDota.DotaReplay
 {
-
-
-    public class ReplayDownloader : SingleTon<ReplayDownloader>
+    public class MDReplayGenerator : SingleTon<MDReplayGenerator>
     {
         //GenerateTaskResultEnum
         public enum EReplayGenerateResult
@@ -19,6 +18,10 @@ namespace MetaDota.DotaReplay
             NoTask,
             NotComplet,
             LaunchDotaFail,
+            NoMatch,
+            DemoUnavailable,
+            DemoDownloadFail,
+            NotFindPlayer,
             Success,
             Failure,
         }
@@ -29,7 +32,7 @@ namespace MetaDota.DotaReplay
         private ulong account_id = 0;
 
         private Task<EReplayGenerateResult> _downloadTask;
-        public ReplayDownloader()
+        public MDReplayGenerator()
         {
             _client = DotaClient.Instance;
         }
@@ -98,11 +101,45 @@ namespace MetaDota.DotaReplay
 
         async Task<EReplayGenerateResult> _GenerateMatchReplayTask()
         {
+            string destFilePath = Path.Combine(ClientParams.REPLAY_DIR, string.Format("{0}_{1}.mp4", match_id, account_id));
+
+            if (MDFile.FileExists(destFilePath))  return EReplayGenerateResult.Success; 
+
+            //find or get .dem file
+            string demoFilePath = Path.Combine(ClientParams.DEMO_DIR, string.Format("{0}.dem", match_id));
+
+            CMsgDOTAMatch matchInfo = await _GetMatch();
+
+            if (matchInfo == null)
+                return EReplayGenerateResult.NoMatch;
+
+            if (matchInfo.replay_state != CMsgDOTAMatch.ReplayState.REPLAY_AVAILABLE)
+                return EReplayGenerateResult.DemoUnavailable;
+
+            //download demo
+            await MDReplayDownloader._DownLoadReplay(matchInfo, demoFilePath);
+
+            //demo download fail
+            if (!MDFile.FileExists(demoFilePath)) 
+                return EReplayGenerateResult.DemoDownloadFail;
+
+
+
+            //prepare demo analyst params
+            string hero_name, slot, war_fog;
+            _prepareAnalystParams(out hero_name, out slot, out war_fog);
+
+
             return EReplayGenerateResult.Success;
         }
 
+        void _prepareAnalystParams(out string hero_name, out string slot, out string war_fog)
+        {
+            
+        }
 
-        async Task<CMsgDOTAMatch> _GetMatch(ulong match_id)
+
+        async Task<CMsgDOTAMatch> _GetMatch()
         {
             if (!_client.IsLogonDota)
             {
@@ -119,47 +156,15 @@ namespace MetaDota.DotaReplay
             }
         }
 
-        async static Task DownLoadReplay(CMsgDOTAMatch match)
-        {
-            if (match == null)
-            {
-                Console.WriteLine("No match details to display");
-                return;
-            }
-            if (match.replay_state != CMsgDOTAMatch.ReplayState.REPLAY_AVAILABLE)
-            {
-                Console.WriteLine("录像不可用:" + match.replay_state);
-                return;
-            }
 
-            var cluster = match.cluster;
-            var match_id = match.match_id;
-            var replay_salt = match.replay_salt;
-            var _download_url = string.Format(ClientParams.DEMO_URL_STRING, cluster, match_id, replay_salt);
-            Console.WriteLine("录像下载地址:" + _download_url);
-            var save = string.Format(@"C:\Users\admin\Desktop\{0}.dem.bz2", match_id);
-            if (!File.Exists(save))
-            {
-                Console.WriteLine("文件不存在，开始下载...");
-                //先下载到临时文件
-                var tmp = save + ".tmp";
-                using (var web = new WebClient())
-                {
-                    await web.DownloadFileTaskAsync(_download_url, tmp);
-                }
-                File.Move(tmp, save, true);
-                Console.WriteLine("文件下载成功");
-            }
-            Console.WriteLine("下载完毕");
-
-        }
 
 
 
         public static CMsgDOTAMatch GetMatch(ulong match_id)
         {
-           Task<CMsgDOTAMatch> task = Instance._GetMatch(match_id);
-            task.Wait();
+           Instance.match_id = match_id;
+           Task<CMsgDOTAMatch> task = Instance._GetMatch();
+           task.Wait();
            return task.Result;
         }
 

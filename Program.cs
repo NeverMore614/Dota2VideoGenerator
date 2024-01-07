@@ -24,7 +24,7 @@ namespace ConsoleApp2
             Console.WriteLine("please input dota2 beta path :");
             string dotaPath = Console.ReadLine();
 
-            ReplayDownloader.Instance.Init(dotaPath);
+            MDReplayGenerator.Instance.Init(dotaPath);
             DotaClient.Instance.Init();
 
             if (!DotaClient.Instance.IsLogonDota)
@@ -75,11 +75,11 @@ namespace ConsoleApp2
             {
                 await Task.Delay(ClientParams.DOWNLOAD_CHECK_INTERVAL);
 #if DEBUG
-                MDFileReader.ReadLine(ClientParams.MATCH_REQUEST_FILE, ref requestStr);
+                MDFile.ReadLine(ClientParams.MATCH_REQUEST_FILE, ref requestStr);
 #endif
-                if (ReplayDownloader.Generate(requestStr))
+                if (MDReplayGenerator.Generate(requestStr))
                 {
-                    Console.WriteLine($"result : {ReplayDownloader.GetResult()}");
+                    Console.WriteLine($"result : {MDReplayGenerator.GetResult()}");
                 }
             }
         }
