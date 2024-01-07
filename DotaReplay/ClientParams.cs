@@ -14,5 +14,6 @@ namespace MetaDota.DotaReplay
         public const string STEAM_PASSWORD = "8111528yui";
         public const int DOWNLOAD_CHECK_INTERVAL = 10000;
         public const string MATCH_REQUEST_FILE = "matchRequest.txt";
+        public const string REPLAY_DIR = "";
     }
 }

@@ -74,13 +74,12 @@ namespace ConsoleApp2
             while (true)
             {
                 await Task.Delay(ClientParams.DOWNLOAD_CHECK_INTERVAL);
-
-                if (ReplayDownloader.IsDownloadingIdle())
-                { 
-                    if (!DotaClient.Instance.IsLogonDota) return;
-
-                    MDFileReader.ReadLine(ClientParams.MATCH_REQUEST_FILE, ref requestStr);
-                    ReplayDownloader.Download(requestStr);
+#if DEBUG
+                MDFileReader.ReadLine(ClientParams.MATCH_REQUEST_FILE, ref requestStr);
+#endif
+                if (ReplayDownloader.Generate(requestStr))
+                {
+                    Console.WriteLine($"result : {ReplayDownloader.GetResult()}");
                 }
             }
         }

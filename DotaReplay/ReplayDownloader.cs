@@ -9,15 +9,26 @@ using System.Threading.Tasks;
 
 namespace MetaDota.DotaReplay
 {
+
+
     public class ReplayDownloader : SingleTon<ReplayDownloader>
     {
+        //GenerateTaskResultEnum
+        public enum EReplayGenerateResult
+        { 
+            NoTask,
+            NotComplet,
+            LaunchDotaFail,
+            Success,
+            Failure,
+        }
         private DotaClient _client;
         private string dotaLauncherPath = "game/bin/win64/dota2.exe";
         private string dotaMoviePath = "../movie";
         private ulong match_id = 0;
         private ulong account_id = 0;
 
-        private Task _downloadTask;
+        private Task<EReplayGenerateResult> _downloadTask;
         public ReplayDownloader()
         {
             _client = DotaClient.Instance;
@@ -33,40 +44,62 @@ namespace MetaDota.DotaReplay
             dotaMoviePath = Path.Combine(dotaPath, dotaMoviePath);
         }
 
-        void _Download(string request)
+        bool _Generate(string request)
         {
-            if (string.IsNullOrEmpty(request)) return;
+            if (string.IsNullOrEmpty(request))
+            {
+                Console.WriteLine($"Parse requset fail :EmptyOrNull");
+                return false;
 
+            }
             if (!_client.IsLogonDota)
             {
-                Console.WriteLine("未能链接到steam网络，退出");
+                Console.WriteLine("Unable to Connect DotaServer");
+                return false;
                 //_client.Reconnect();
                 //await _Download(match_id);
             }
 
-            if (!IsDownloadingIdle())
-                return;
-            else
+            if (!IsGenerateIdle())
             {
-                //paris request content
-                string[] splitArray = request.Split("_");
-                try
-                {
-                    match_id = ulong.Parse(splitArray[0]);
-                    account_id = ulong.Parse(splitArray[1]);
-                }
-                catch (Exception e)
-                {
-                    Console.WriteLine($"{e.Message}");
-                    return;
-                }
-
-                _client.RequestMatch(match_id);
-                _client.WaitMatch();
-                await DownLoadReplay(_client.Match);
+                Console.WriteLine("Task is processing");
+                return false;
             }
+
+            //paris request content
+            string[] splitArray = request.Split("_");
+            try
+            {
+                match_id = ulong.Parse(splitArray[0]);
+                account_id = ulong.Parse(splitArray[1]);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine($"Parse {request} fail :{e.Message}");
+                return false;
+            }
+
+            //download dota replay demo
+
+            _downloadTask = _GenerateMatchReplayTask();
+            _downloadTask.Wait();
+            return true;
         }
 
+        EReplayGenerateResult _GetResult()
+        {
+            if (_downloadTask == null) return EReplayGenerateResult.NoTask;
+
+            if (!_downloadTask.IsCompleted) return EReplayGenerateResult.NotComplet;
+
+            return _downloadTask.Result;
+
+        }
+
+        async Task<EReplayGenerateResult> _GenerateMatchReplayTask()
+        {
+            return EReplayGenerateResult.Success;
+        }
 
 
         async Task<CMsgDOTAMatch> _GetMatch(ulong match_id)
@@ -121,6 +154,8 @@ namespace MetaDota.DotaReplay
 
         }
 
+
+
         public static CMsgDOTAMatch GetMatch(ulong match_id)
         {
            Task<CMsgDOTAMatch> task = Instance._GetMatch(match_id);
@@ -129,15 +164,20 @@ namespace MetaDota.DotaReplay
         }
 
 
-        public static bool IsDownloadingIdle()
+        public static bool IsGenerateIdle()
         {
             if (Instance._downloadTask == null) return true;
             return Instance._downloadTask.IsCompleted;
         }
 
-        public static void Download(string request)
+        public static bool Generate(string request)
         {
-            Instance._Download(request);
+            return Instance._Generate(request);
+        }
+
+        public static EReplayGenerateResult GetResult()
+        { 
+            return Instance._GetResult();
         }
     }
 }
