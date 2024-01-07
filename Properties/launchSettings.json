@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "MetaDota": {
+      "commandName": "Project",
+      "commandLineArgs": "44"
+    }
+  }
+}
