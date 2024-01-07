@@ -21,10 +21,17 @@ namespace ConsoleApp2
         
         public static void Main(string[] args)
         {
+#if DEBUG
+            string dotaPath = "E:\\Steam\\steam\\steamapps\\common\\dota 2 beta";
+#else
             Console.WriteLine("please input dota2 beta path :");
             string dotaPath = Console.ReadLine();
+#endif
+
+            MDFile.Init();
 
             MDReplayGenerator.Instance.Init(dotaPath);
+
             DotaClient.Instance.Init();
 
             if (!DotaClient.Instance.IsLogonDota)
@@ -34,6 +41,14 @@ namespace ConsoleApp2
             }
 
             Console.WriteLine("dota2 launch success! start check replay");
+
+            //CMsgDOTAMatch match = MDReplayGenerator.GetMatch(7514943728);
+            //if (match != null)
+            //{
+            //    string a, b, c;
+            //    _prepareAnalystParams(match, out a, out b, out c);
+            //    Console.WriteLine($"getDetails :{a}  {b}  {c}");
+            //}
 
             CheckDownloadTask().Wait();
 
@@ -67,6 +82,29 @@ namespace ConsoleApp2
             //var id = uint.Parse(args[0] ?? "0");
             //Console.WriteLine(client.GetHeroNameByID(id)); ;
         }
+
+        static bool _prepareAnalystParams(CMsgDOTAMatch matchInfo, out string hero_name, out string slot, out string war_fog)
+        {
+            hero_name = "";
+            slot = "";
+            war_fog = "";
+            foreach (CMsgDOTAMatch.Player player in matchInfo.players)
+            {
+                if (player.account_id == 303440494)
+                {
+
+                    hero_name = DotaClient.Instance.GetHeroNameByID(player.hero_id);
+                    Console.WriteLine($"hero_name = {hero_name}");
+                    slot = player.player_slot.ToString();
+                    Console.WriteLine($"player_slot = {slot}");
+                    Console.WriteLine($"team_slot = {player.team_slot}");
+                    war_fog = "";
+                    return true;
+                }
+            }
+            return false;
+        }
+
 
         static async Task CheckDownloadTask()
         {

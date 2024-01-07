@@ -3,10 +3,12 @@ using SteamKit2.GC.Dota.Internal;
 using SteamKit2.Internal;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Net;
 using System.Text;
 using System.Threading.Tasks;
+using static SteamKit2.GC.Dota.Internal.CDOTAMatchMetadata;
 
 namespace MetaDota.DotaReplay
 {
@@ -29,7 +31,7 @@ namespace MetaDota.DotaReplay
         private string dotaLauncherPath = "game/bin/win64/dota2.exe";
         private string dotaMoviePath = "../movie";
         private ulong match_id = 0;
-        private ulong account_id = 0;
+        private uint account_id = 0;
 
         private Task<EReplayGenerateResult> _downloadTask;
         public MDReplayGenerator()
@@ -74,7 +76,7 @@ namespace MetaDota.DotaReplay
             try
             {
                 match_id = ulong.Parse(splitArray[0]);
-                account_id = ulong.Parse(splitArray[1]);
+                account_id = uint.Parse(splitArray[1]);
             }
             catch (Exception e)
             {
@@ -127,15 +129,49 @@ namespace MetaDota.DotaReplay
 
             //prepare demo analyst params
             string hero_name, slot, war_fog;
-            _prepareAnalystParams(out hero_name, out slot, out war_fog);
+            if (!_prepareAnalystParams(matchInfo, out hero_name, out slot, out war_fog))
+                return EReplayGenerateResult.NotFindPlayer;
 
+            //demo analyst
+            _analyst_demo(demoFilePath, hero_name, slot, war_fog);
 
             return EReplayGenerateResult.Success;
         }
 
-        void _prepareAnalystParams(out string hero_name, out string slot, out string war_fog)
+        void _analyst_demo(string demoFilePath, string hero_name, string slot, string war_fog)
         {
-            
+            using (Process demoP = new Process())
+            {
+                demoP.StartInfo.FileName = "demo.exe";
+                demoP.StartInfo.RedirectStandardInput = true;
+                demoP.StartInfo.Arguments = $"{demoFilePath} {hero_name} {slot} {war_fog}";
+                demoP.Start();
+                demoP.WaitForExit();
+            }
+        }
+
+        /// <summary>
+        /// prepare analyst params by CMsgDOTAMatch
+        /// </summary>
+        /// <param name="matchInfo"></param>
+        /// <param name="hero_name"></param>
+        /// <param name="slot"></param>
+        /// <param name="war_fog"></param>
+        bool _prepareAnalystParams(CMsgDOTAMatch matchInfo, out string hero_name, out string slot, out string war_fog)
+        {
+            hero_name = "";
+            slot = "";
+            war_fog = "";
+            foreach (CMsgDOTAMatch.Player player in matchInfo.players) {
+                if (player.account_id == account_id)
+                {
+                    hero_name = _client.GetHeroNameByID(player.hero_id);
+                    slot = (player.team_slot + (player.player_slot > 100 ? 5 : 0)).ToString();
+                    war_fog = (player.player_slot > 100 ? 3 : 2).ToString();
+                    return true;
+                }
+            }
+            return false;
         }
 
 

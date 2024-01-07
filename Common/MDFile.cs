@@ -4,11 +4,24 @@ using System.Linq;
 using System.Text;
 using System.IO;
 using System.Threading.Tasks;
+using MetaDota.DotaReplay;
 
 namespace MetaDota.Common
 {
     internal class MDFile
     {
+        public static void Init()
+        { 
+            if (!Directory.Exists(ClientParams.DEMO_DIR))
+            {
+                Directory.CreateDirectory(ClientParams.DEMO_DIR);
+            }
+
+            if (!Directory.Exists(ClientParams.REPLAY_DIR))
+            {
+                Directory.CreateDirectory(ClientParams.REPLAY_DIR);
+            }
+        }
         public static string ReadLine(string path, ref string result)
         {
             try
@@ -17,7 +30,7 @@ namespace MetaDota.Common
             }
             catch (Exception e)
             {
-                result = "";
+                
                 Console.WriteLine(e);
             }
             return result;

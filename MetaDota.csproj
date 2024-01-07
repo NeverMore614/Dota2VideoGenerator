@@ -10,6 +10,7 @@
   <ItemGroup>
     <PackageReference Include="Dota2" Version="0.11.0" />
     <PackageReference Include="InputSimulator" Version="1.0.4" />
+    <PackageReference Include="SteamKit2" Version="2.5.0" />
   </ItemGroup>
 
 </Project>

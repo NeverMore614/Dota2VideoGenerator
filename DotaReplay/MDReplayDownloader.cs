@@ -6,6 +6,7 @@ using System.Net;
 using System.Text;
 using System.Threading.Tasks;
 using SteamKit2.GC.Dota.Internal;
+using static SteamKit2.Internal.CMsgDownloadRateStatistics;
 
 namespace MetaDota.DotaReplay
 {
@@ -40,21 +41,20 @@ namespace MetaDota.DotaReplay
                 {
                     await web.DownloadFileTaskAsync(_download_url, tmp);
                 }
+                
                 File.Move(tmp, zip, true);
                 Console.WriteLine("demo download success");
             }
             //start unzip demo
             using (Process zipProcess = new Process())
             {
-                zipProcess.StartInfo.FileName = "cmd.exe";
+                zipProcess.StartInfo.FileName = "7z.exe";
                 zipProcess.StartInfo.RedirectStandardInput = true;
+                zipProcess.StartInfo.Arguments = $"x {zip} -o{ClientParams.DEMO_DIR} -aoa";
                 zipProcess.Start();
+                zipProcess.WaitForExit();
             }
-                
-
-
-
-
+            File.Delete(zip);
             Console.WriteLine("download complete");
 
         }

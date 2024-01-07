@@ -8,7 +8,8 @@ using SteamKit2.Internal; // brings in our protobuf client messages
 using SteamKit2.GC; // brings in the GC related classes
 using SteamKit2.GC.Dota.Internal;
 using System.Text.Json.Nodes;
-using System.Collections; // brings in dota specific protobuf messages
+using System.Collections;
+using MetaDota.Common; // brings in dota specific protobuf messages
 
 namespace MetaDota.DotaReplay;
 
@@ -63,6 +64,9 @@ class DotaClient : SingleTon<DotaClient>
                 { ( uint )EGCBaseClientMsg.k_EMsgGCClientWelcome, OnClientWelcome },
                 { ( uint )EDOTAGCMsg.k_EMsgGCMatchDetailsResponse, OnMatchDetails },
             };
+          
+        //authCode = "";
+        //MDFile.ReadLine("auth.txt", ref authCode);
     }
 
     /// <summary>
@@ -123,6 +127,7 @@ class DotaClient : SingleTon<DotaClient>
         {
             // continue running callbacks until we get match details
             callbackMgr.RunWaitCallbacks( TimeSpan.FromSeconds( 1 ) );
+            Console.WriteLine("WaitLogon...");
         }
     }
 
@@ -132,12 +137,17 @@ class DotaClient : SingleTon<DotaClient>
         {
             // continue running callbacks until we get match details
             callbackMgr.RunWaitCallbacks(TimeSpan.FromSeconds(1));
+            Console.WriteLine("gotMatch...");
         }
     }
 
     // called when the client successfully (or unsuccessfully) connects to steam
     void OnConnected( SteamClient.ConnectedCallback callback )
     {
+        if (authCode != null)
+        {
+            Console.WriteLine("authCode = '{0}' into Steam...", authCode);
+        }
         Console.WriteLine( "Connected! Logging '{0}' into Steam...", ClientParams.STEAM_USERNAME );
 
         // we've successfully connected, so now attempt to logon
@@ -168,12 +178,12 @@ class DotaClient : SingleTon<DotaClient>
 
             if (is2FA)
             {
-                Console.Write("Please enter your 2 factor auth code from your authenticator app: ");
+                Console.WriteLine("Please enter your 2 factor auth code from your authenticator app: ");
                 twoFactorAuth = Console.ReadLine();
             }
             else
             {
-                Console.Write("Please enter the auth code sent to the email at {0}: ", callback.EmailDomain);
+                Console.WriteLine("Please enter the auth code sent to the email at {0}: ", callback.EmailDomain);
                 authCode = Console.ReadLine();
             }
             client.Connect();
