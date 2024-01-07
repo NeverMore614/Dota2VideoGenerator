@@ -4,14 +4,75 @@ using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using MetaDota.Common.Native;
+using System.Runtime.InteropServices;
+using WindowsInput;
+using WindowsInput.Native;
+using MetaDota.InputSimulation;
+using SuperKeys;
 
 namespace MetaDota.DotaReplay
 {
     internal class MDMovieMaker : SingleTon<MDMovieMaker>
     {
-        public MDMovieMaker()
-        { 
-            
+
+        private Task _task;
+
+        public async Task _StartRecordMovie()
+        {
+            while (true)
+            {
+
+            }
         }
+
+        public void CancelRecording()
+        {
+            if (!DotaClient.Instance.IsInit)
+            {
+                Console.WriteLine("DotaClient  Is not Init");
+                return;
+            }
+
+            string playDemoCmd = $"playdemo replays/{MDReplayGenerator.match_id}";
+
+            Process[] processes = Process.GetProcessesByName("dota2");
+            if (processes.Length == 0)
+            {
+                File.WriteAllText(Path.Combine(DotaClient.dotaPath, "game/dota/cfg/autoexec.cfg"), playDemoCmd);
+
+                Process process = new Process();
+                process.StartInfo.FileName = DotaClient.dotaLauncherPath;
+                process.StartInfo.Arguments = "-console";
+                process.Start();
+            }
+            else
+            {
+                NativeMethods.SwitchToThisWindow(processes[0].MainWindowHandle, true);
+
+                Thread.Sleep(2000);
+                //MouseSimulation.MoveTo(250, 150);
+                //MouseSimulation.Click(0,0);
+                Inits
+                Thread.Sleep(500);
+                //inputSimulation.Keyboard.Sleep(2000);
+                //inputSimulation.Keyboard.KeyPress(VirtualKeyCode.OEM_5);
+                //inputSimulation.Keyboard.Sleep(1000);
+                //inputSimulation.Keyboard.TextEntry(playDemoCmd);
+                //inputSimulation.Keyboard.Sleep(500);
+                //inputSimulation.Keyboard.KeyPress(VirtualKeyCode.RETURN);
+            }
+        }
+
+        public static Task StartRecordMovie()
+        {
+            if (Instance._task == null || Instance._task.IsCompleted)
+            {
+                Instance._task = Instance._StartRecordMovie();
+            }
+            return Instance._task;
+        }
+
+
     }
 }

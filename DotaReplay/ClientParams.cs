@@ -16,5 +16,6 @@ namespace MetaDota.DotaReplay
         public const string MATCH_REQUEST_FILE = "matchRequest.txt";
         public const string REPLAY_DIR = "replays";
         public const string DEMO_DIR = "demos";
+        public const string REPLAY_CFG_DIR = "replayCfg";
     }
 }

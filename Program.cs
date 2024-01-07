@@ -23,6 +23,10 @@ namespace ConsoleApp2
         {
 #if DEBUG
             string dotaPath = "E:\\Steam\\steam\\steamapps\\common\\dota 2 beta";
+            DotaClient.Instance.Init(dotaPath);
+            MDReplayGenerator.match_id = 7514943728;
+            MDMovieMaker.Instance.CancelRecording();
+            return;
 #else
             Console.WriteLine("please input dota2 beta path :");
             string dotaPath = Console.ReadLine();
@@ -30,9 +34,10 @@ namespace ConsoleApp2
 
             MDFile.Init();
 
-            MDReplayGenerator.Instance.Init(dotaPath);
+            MDReplayGenerator.Instance.Init();
 
-            DotaClient.Instance.Init();
+            DotaClient.Instance.Init(dotaPath);
+            DotaClient.Instance.Reconnect();
 
             if (!DotaClient.Instance.IsLogonDota)
             { 
@@ -68,20 +73,9 @@ namespace ConsoleApp2
             //
             //inputSimulator.Mouse.MoveMouseTo(1000, 1000);
 
-;
-            //if (match == null) {
-            //    Console.WriteLine("未找到match");
-            //    return;
-            //}
-            //Console.WriteLine("找到match");
-            //foreach (CMsgDOTAMatch.Player player in match.players)
-            //{
-            //    Console.WriteLine(player.player_name + "use hero:" + player.hero_id);
-            //}
-            //DotaClient client = new DotaClient();
-            //var id = uint.Parse(args[0] ?? "0");
-            //Console.WriteLine(client.GetHeroNameByID(id)); ;
+
         }
+
 
         static bool _prepareAnalystParams(CMsgDOTAMatch matchInfo, out string hero_name, out string slot, out string war_fog)
         {

@@ -6,12 +6,12 @@ using System.Threading.Tasks;
 
 public class SingleTon<T> where T : class, new()
 {
-    public static class InternalClass<T> where T : class, new()
+    internal static class InternalClass<T> where T : class, new()
     {
         public static T instance = new T();
     }
 
-    public static T Instance
+    internal static T Instance
     {
         get
         {

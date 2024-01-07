@@ -21,6 +21,10 @@ namespace MetaDota.Common
             {
                 Directory.CreateDirectory(ClientParams.REPLAY_DIR);
             }
+            if (!Directory.Exists(ClientParams.REPLAY_CFG_DIR))
+            {
+                Directory.CreateDirectory(ClientParams.REPLAY_CFG_DIR);
+            }
         }
         public static string ReadLine(string path, ref string result)
         {
@@ -35,6 +39,8 @@ namespace MetaDota.Common
             }
             return result;
         }
+
+       
 
         public static bool FileExists(string path)
         { 

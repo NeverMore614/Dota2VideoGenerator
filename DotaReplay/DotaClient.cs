@@ -36,8 +36,13 @@ class DotaClient : SingleTon<DotaClient>
 
     public bool IsLogonDota = false;
 
+    public static string dotaLauncherPath = "game/bin/win64/dota2.exe";
 
+    public static string dotaMoviePath = "../movie";
 
+    public static string dotaPath = "";
+
+    public bool IsInit = false;
 
     public DotaClient()
     {
@@ -72,10 +77,12 @@ class DotaClient : SingleTon<DotaClient>
     /// <summary>
     /// 初始化调用，连接到dota2服务器
     /// </summary>
-    public void Init()
+    public void Init(string dota2BetaPath)
     {
-        Connect();
-        WaitLogon();
+        IsInit = true;
+        dotaPath = dota2BetaPath;
+        dotaLauncherPath = Path.Combine(dotaPath, dotaLauncherPath);
+        dotaMoviePath = Path.Combine(dotaPath, dotaMoviePath);
     }
 
     void _init_hero_json()

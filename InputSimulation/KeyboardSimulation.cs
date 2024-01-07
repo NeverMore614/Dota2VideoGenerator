@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Runtime.InteropServices;
+using WindowsInput.Native;
 
 namespace MetaDota.InputSimulation
 {
@@ -14,7 +15,7 @@ namespace MetaDota.InputSimulation
         const int KEYEVENTF_EXTENDEDKEY = 0x1;
         const int KEYEVENTF_KEYUP = 0x2;
 
-        public void _KeyboardClick(char key, bool up)
+        public void _KeyboardClick(VirtualKeyCode key, bool up)
         {
 
             if (up)
@@ -31,9 +32,9 @@ namespace MetaDota.InputSimulation
             }
         }
 
-        public static void KeyboardClick(char c, bool up)
+        public static void KeyboardClick(VirtualKeyCode virtualKeyCode, bool up)
         {
-            Instance._KeyboardClick(c, up);
+            Instance._KeyboardClick(virtualKeyCode, up);
         }
     }
 }

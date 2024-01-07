@@ -24,14 +24,14 @@ namespace MetaDota.DotaReplay
             DemoUnavailable,
             DemoDownloadFail,
             NotFindPlayer,
+            AnalystFail,
             Success,
             Failure,
         }
         private DotaClient _client;
-        private string dotaLauncherPath = "game/bin/win64/dota2.exe";
-        private string dotaMoviePath = "../movie";
-        private ulong match_id = 0;
-        private uint account_id = 0;
+
+        public static ulong match_id = 0;
+        public static uint account_id = 0;
 
         private Task<EReplayGenerateResult> _downloadTask;
         public MDReplayGenerator()
@@ -42,11 +42,9 @@ namespace MetaDota.DotaReplay
         /// <summary>
         /// Init dota path
         /// </summary>
-        /// <param name="dotaPath">dota 2 beta directory path</param>
-        public void Init(string dotaPath)
+        public void Init()
         {
-            dotaLauncherPath = Path.Combine(dotaPath, dotaLauncherPath);
-            dotaMoviePath = Path.Combine(dotaPath, dotaMoviePath);
+
         }
 
         bool _Generate(string request)
@@ -88,6 +86,7 @@ namespace MetaDota.DotaReplay
 
             _downloadTask = _GenerateMatchReplayTask();
             _downloadTask.Wait();
+
             return true;
         }
 
@@ -133,13 +132,23 @@ namespace MetaDota.DotaReplay
                 return EReplayGenerateResult.NotFindPlayer;
 
             //demo analyst
-            _analyst_demo(demoFilePath, hero_name, slot, war_fog);
+            if (!_analyst_demo(demoFilePath, hero_name, slot, war_fog))
+                return EReplayGenerateResult.AnalystFail;
+
+            MDMovieMaker.Instance.CancelRecording();
+            await MDMovieMaker.StartRecordMovie();
+
 
             return EReplayGenerateResult.Success;
         }
 
-        void _analyst_demo(string demoFilePath, string hero_name, string slot, string war_fog)
+        bool _analyst_demo(string demoFilePath, string hero_name, string slot, string war_fog)
         {
+            foreach (String file in Directory.GetFiles(ClientParams.REPLAY_CFG_DIR))
+            {
+                File.Delete(file);
+            }
+
             using (Process demoP = new Process())
             {
                 demoP.StartInfo.FileName = "demo.exe";
@@ -148,6 +157,9 @@ namespace MetaDota.DotaReplay
                 demoP.Start();
                 demoP.WaitForExit();
             }
+            
+            return File.Exists(ClientParams.REPLAY_CFG_DIR + "/replayCfg.txt") && File.Exists(ClientParams.REPLAY_CFG_DIR + "/keyCfg.txt");
+
         }
 
         /// <summary>
@@ -196,14 +208,13 @@ namespace MetaDota.DotaReplay
 
 
 
-        public static CMsgDOTAMatch GetMatch(ulong match_id)
+        public static CMsgDOTAMatch GetMatch(ulong find_match_id)
         {
-           Instance.match_id = match_id;
+           match_id = find_match_id;
            Task<CMsgDOTAMatch> task = Instance._GetMatch();
            task.Wait();
            return task.Result;
         }
-
 
         public static bool IsGenerateIdle()
         {

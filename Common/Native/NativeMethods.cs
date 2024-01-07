@@ -19,5 +19,9 @@ namespace MetaDota.Common.Native
 
         [DllImport("user32")]
         public static extern void keybd_event(byte bVk, byte bScan, uint dwFlags, uint dwExtraInfo);
+
+        [DllImport("user32.dll")]
+        public static extern void SwitchToThisWindow(IntPtr hWnd, bool fAltTab);
+
     }
 }
