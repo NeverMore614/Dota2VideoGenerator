@@ -13,7 +13,31 @@ namespace MetaDota.DotaReplay
     internal class MDReplayDownloader
     {
 
-        public async static Task _DownLoadReplay(CMsgDOTAMatch match, string savePath)
+        static Queue<Task> _task_queue;
+        public async static Task Init()
+        {
+            _task_queue = new Queue<Task>();
+            while (true)
+            {
+                await Task.Delay(5000);
+                if (_task_queue.Count > 0)
+                {
+                    Task task = _task_queue.Dequeue();
+                    task.Start();
+                    await task;
+                }
+            }
+        }
+        public static Task _DownLoadReplay(CMsgDOTAMatch match, string savePath)
+        {
+            Task downloadTask = new Task(() => _DownLoadReplayAction(match, savePath));
+
+            _task_queue.Enqueue(downloadTask);
+
+            return downloadTask;
+        }
+
+        static void _DownLoadReplayAction(CMsgDOTAMatch match, string savePath)
         {
             if (match == null)
             {
@@ -43,9 +67,9 @@ namespace MetaDota.DotaReplay
                 var tmp = zip + ".tmp";
                 using (var web = new WebClient())
                 {
-                    await web.DownloadFileTaskAsync(_download_url, tmp);
+                    web.DownloadFileTaskAsync(_download_url, tmp).Wait();
                 }
-                
+
                 File.Move(tmp, zip, true);
                 Console.WriteLine("demo download success");
             }
@@ -60,7 +84,6 @@ namespace MetaDota.DotaReplay
             }
             File.Delete(zip);
             Console.WriteLine("download complete");
-
         }
     }
 }

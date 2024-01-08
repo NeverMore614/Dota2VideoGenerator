@@ -17,6 +17,26 @@ namespace MetaDota.DotaReplay
     {
 
         private Task _task;
+        private Input _input;
+
+        public bool Init()
+        {
+            try
+            {
+                _input = new Input();
+                _input.KeyboardFilterMode = KeyboardFilterMode.All;
+                _input.Load();
+                Console.Write("To Start DirectX Input, please enter any key:");
+                Console.ReadLine();
+                Console.Write("MDMovieMaker Init Success");
+                return true;
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine("MDMovieMaker Init Fail:" + e.Message);
+                return false;
+            }
+        }
 
         public async Task _StartRecordMovie()
         {
@@ -34,7 +54,7 @@ namespace MetaDota.DotaReplay
                 return;
             }
 
-            string playDemoCmd = $"playdemo replays/{MDReplayGenerator.match_id}";
+            string playDemoCmd = $"playdemo replays/12312\nshowConsole";
 
             Process[] processes = Process.GetProcessesByName("dota2");
             if (processes.Length == 0)

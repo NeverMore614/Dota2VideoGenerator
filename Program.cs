@@ -46,11 +46,15 @@ namespace ConsoleApp2
 
             MDFile.Init();
 
-            MDReplayGenerator.Instance.Init();
+            //movie maker
+            if( MDMovieMaker.Instance.Init())return;
 
+            //demo downloader
+            MDReplayDownloader.Init();
+
+            //dota client
             DotaClient.Instance.Init(dotaPath);
             DotaClient.Instance.Reconnect();
-
             if (!DotaClient.Instance.IsLogonDota)
             { 
                 Console.WriteLine("dota2 launch fail");
