@@ -9,11 +9,15 @@ using System.Net;
 using System.Text;
 using System.Threading.Tasks;
 using static SteamKit2.GC.Dota.Internal.CDOTAMatchMetadata;
+using static SteamKit2.GC.Dota.Internal.CMsgSDOAssert;
 
 namespace MetaDota.DotaReplay
 {
-    public class MDReplayGenerator : SingleTon<MDReplayGenerator>
+    public class MDReplayGenerator
     {
+        //generator task Factory
+        private static Dictionary<string, MDReplayGenerator> sMDReplayGeneratorMap = new Dictionary<string, MDReplayGenerator>();
+
         //GenerateTaskResultEnum
         public enum EReplayGenerateResult
         { 
@@ -30,26 +34,24 @@ namespace MetaDota.DotaReplay
         }
         private DotaClient _client;
 
-        public static ulong match_id = 0;
-        public static uint account_id = 0;
+        private string _request = "";
+        public ulong match_id = 0;
+        public uint account_id = 0;
 
-        private Task<EReplayGenerateResult> _downloadTask;
-        public MDReplayGenerator()
+
+        public MDReplayGenerator(string request)
         {
             _client = DotaClient.Instance;
+            _request = request;
+            sMDReplayGeneratorMap.Add(request, this);
         }
 
-        /// <summary>
-        /// Init dota path
-        /// </summary>
-        public void Init()
-        {
 
-        }
+        private Task<EReplayGenerateResult> _downloadTask;
 
-        bool _Generate(string request)
+        bool _Generate()
         {
-            if (string.IsNullOrEmpty(request))
+            if (string.IsNullOrEmpty(_request))
             {
                 Console.WriteLine($"Parse requset fail :EmptyOrNull");
                 return false;
@@ -70,7 +72,7 @@ namespace MetaDota.DotaReplay
             }
 
             //paris request content
-            string[] splitArray = request.Split('_');
+            string[] splitArray = _request.Split('_');
             try
             {
                 match_id = ulong.Parse(splitArray[0]);
@@ -78,14 +80,13 @@ namespace MetaDota.DotaReplay
             }
             catch (Exception e)
             {
-                Console.WriteLine($"Parse {request} fail :{e.Message}");
+                Console.WriteLine($"Parse {_request} fail :{e.Message}");
                 return false;
             }
 
             //download dota replay demo
 
             _downloadTask = _GenerateMatchReplayTask();
-            _downloadTask.Wait();
 
             return true;
         }
@@ -100,6 +101,14 @@ namespace MetaDota.DotaReplay
 
         }
 
+        void _Wait()
+        {
+            if (_downloadTask != null && !_downloadTask.IsCompleted)
+            {
+                _downloadTask.Wait();
+            }
+        }
+
         async Task<EReplayGenerateResult> _GenerateMatchReplayTask()
         {
             string destFilePath = Path.Combine(ClientParams.REPLAY_DIR, string.Format("{0}_{1}.mp4", match_id, account_id));
@@ -109,10 +118,15 @@ namespace MetaDota.DotaReplay
             //find or get .dem file
             string demoFilePath = Path.Combine(ClientParams.DEMO_DIR, string.Format("{0}.dem", match_id));
 
+
+
             CMsgDOTAMatch matchInfo = await _GetMatch();
 
             if (matchInfo == null)
                 return EReplayGenerateResult.NoMatch;
+
+
+
 
             if (matchInfo.replay_state != CMsgDOTAMatch.ReplayState.REPLAY_AVAILABLE)
                 return EReplayGenerateResult.DemoUnavailable;
@@ -205,31 +219,33 @@ namespace MetaDota.DotaReplay
         }
 
 
-
-
-
-        public static CMsgDOTAMatch GetMatch(ulong find_match_id)
+        private bool IsGenerateIdle()
         {
-           match_id = find_match_id;
-           Task<CMsgDOTAMatch> task = Instance._GetMatch();
-           task.Wait();
-           return task.Result;
+            if (_downloadTask == null) return true;
+            return _downloadTask.IsCompleted;
         }
 
-        public static bool IsGenerateIdle()
+        public static void Generate(string request, bool anync = false)
         {
-            if (Instance._downloadTask == null) return true;
-            return Instance._downloadTask.IsCompleted;
+            MDReplayGenerator generator;
+            if (!sMDReplayGeneratorMap.TryGetValue(request, out generator))
+            {
+                generator = new MDReplayGenerator(request);
+                generator._Generate();
+            }
+            if (anync)
+                generator._Wait();
         }
 
-        public static bool Generate(string request)
-        {
-            return Instance._Generate(request);
-        }
 
-        public static EReplayGenerateResult GetResult()
-        { 
-            return Instance._GetResult();
+        public static EReplayGenerateResult GetResult(string request)
+        {
+            MDReplayGenerator generator;
+            if (!sMDReplayGeneratorMap.TryGetValue(request, out generator))
+            {
+                return EReplayGenerateResult.NoTask;
+            }
+            return generator._GetResult();
         }
     }
 }

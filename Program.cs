@@ -121,13 +121,10 @@ namespace ConsoleApp2
 #if DEBUG
                 MDFile.ReadLine(ClientParams.MATCH_REQUEST_FILE, ref requestStr);
 #endif
-                if (MDReplayGenerator.Generate(requestStr))
-                {
-                    Console.WriteLine($"result : {MDReplayGenerator.GetResult()}");
-                }
+                MDReplayGenerator.Generate(requestStr);
+                Console.WriteLine($"result : {MDReplayGenerator.GetResult(requestStr)}");
             }
         }
-
 
 
     }

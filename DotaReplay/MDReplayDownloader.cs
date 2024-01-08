@@ -25,13 +25,17 @@ namespace MetaDota.DotaReplay
                 Console.WriteLine("demo unavailable:" + match.replay_state);
                 return;
             }
+            if (File.Exists(savePath))
+            {
+                return;
+            }
 
             var cluster = match.cluster;
             var match_id = match.match_id;
             var replay_salt = match.replay_salt;
             var _download_url = string.Format(ClientParams.DEMO_URL_STRING, cluster, match_id, replay_salt);
             Console.WriteLine("demo url:" + _download_url);
-            var zip = string.Format(ClientParams.DEMO_DIR + "/{0}.dem.bz2", match_id);
+            var zip = string.Format(savePath + ".bz2", match_id);
             if (!File.Exists(zip))
             {
                 Console.WriteLine(zip + " downloading...");
@@ -42,7 +46,7 @@ namespace MetaDota.DotaReplay
                     await web.DownloadFileTaskAsync(_download_url, tmp);
                 }
                 
-                File.Move(tmp, zip);
+                File.Move(tmp, zip, true);
                 Console.WriteLine("demo download success");
             }
             //start unzip demo
