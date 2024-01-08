@@ -29,7 +29,7 @@ namespace ConsoleApp2
                 input.KeyboardFilterMode = KeyboardFilterMode.All;
                 input.Load();
                 Thread.Sleep(2000);
-                input.SendText("i love u \\");
+                input.SendText("i love u //");
                 Thread.Sleep(1000);
                 input.Unload();
             });
