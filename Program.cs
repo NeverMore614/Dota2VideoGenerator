@@ -12,20 +12,32 @@ using static System.Net.Mime.MediaTypeNames;
 using WindowsInput;
 using MetaDota.InputSimulation;
 using MetaDota.Common;
+using Interceptor;
 
 
 namespace ConsoleApp2
 {
     class Program
     {
-        
         public static void Main(string[] args)
         {
 #if DEBUG
-            string dotaPath = "E:\\Steam\\steam\\steamapps\\common\\dota 2 beta";
-            DotaClient.Instance.Init(dotaPath);
-            MDReplayGenerator.match_id = 7514943728;
-            MDMovieMaker.Instance.CancelRecording();
+            string dotaPath = "E:\\Steam\\steamapps\\common\\dota 2 beta";
+            Task.Run(() =>
+            {
+                Input input = new Input();
+                input.KeyboardFilterMode = KeyboardFilterMode.All;
+                input.Load();
+                Thread.Sleep(2000);
+                input.SendText("i love u \\");
+                Thread.Sleep(1000);
+                input.Unload();
+            });
+            Console.Write("input:");
+            Console.ReadLine();
+            //DotaClient.Instance.Init(dotaPath);
+            //MDReplayGenerator.match_id = 7514943728;
+            //MDMovieMaker.Instance.CancelRecording();
             return;
 #else
             Console.WriteLine("please input dota2 beta path :");

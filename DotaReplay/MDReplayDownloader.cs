@@ -42,7 +42,7 @@ namespace MetaDota.DotaReplay
                     await web.DownloadFileTaskAsync(_download_url, tmp);
                 }
                 
-                File.Move(tmp, zip, true);
+                File.Move(tmp, zip);
                 Console.WriteLine("demo download success");
             }
             //start unzip demo

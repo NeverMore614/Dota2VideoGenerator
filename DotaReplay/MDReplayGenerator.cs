@@ -70,7 +70,7 @@ namespace MetaDota.DotaReplay
             }
 
             //paris request content
-            string[] splitArray = request.Split("_");
+            string[] splitArray = request.Split('_');
             try
             {
                 match_id = ulong.Parse(splitArray[0]);

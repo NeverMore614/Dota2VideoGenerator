@@ -9,7 +9,7 @@ using System.Runtime.InteropServices;
 using WindowsInput;
 using WindowsInput.Native;
 using MetaDota.InputSimulation;
-using SuperKeys;
+using Interceptor;
 
 namespace MetaDota.DotaReplay
 {
@@ -39,6 +39,7 @@ namespace MetaDota.DotaReplay
             Process[] processes = Process.GetProcessesByName("dota2");
             if (processes.Length == 0)
             {
+                Console.WriteLine("111");
                 File.WriteAllText(Path.Combine(DotaClient.dotaPath, "game/dota/cfg/autoexec.cfg"), playDemoCmd);
 
                 Process process = new Process();
@@ -48,13 +49,26 @@ namespace MetaDota.DotaReplay
             }
             else
             {
+                Console.WriteLine($"222 {processes.Length}");
+                Task.Run(() =>
+                {
+                    Input input = new Input();
+                    input.Load();
+                    Thread.Sleep(3000);
+                    input.SendKey(Keys.G, KeyState.Down);
+                });
                 NativeMethods.SwitchToThisWindow(processes[0].MainWindowHandle, true);
+                Thread.Sleep(1000);
+                Input input = new Input();
+                input.Load();
+                Thread.Sleep(3000);
 
-                Thread.Sleep(2000);
+                input.SendKey(Keys.BackslashPipe, KeyState.Down);
+
                 //MouseSimulation.MoveTo(250, 150);
                 //MouseSimulation.Click(0,0);
-                Inits
                 Thread.Sleep(500);
+                //input.SendKeys(Keys.Enter);
                 //inputSimulation.Keyboard.Sleep(2000);
                 //inputSimulation.Keyboard.KeyPress(VirtualKeyCode.OEM_5);
                 //inputSimulation.Keyboard.Sleep(1000);

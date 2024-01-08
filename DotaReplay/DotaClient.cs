@@ -7,7 +7,6 @@ using SteamKit2;
 using SteamKit2.Internal; // brings in our protobuf client messages
 using SteamKit2.GC; // brings in the GC related classes
 using SteamKit2.GC.Dota.Internal;
-using System.Text.Json.Nodes;
 using System.Collections;
 using MetaDota.Common; // brings in dota specific protobuf messages
 

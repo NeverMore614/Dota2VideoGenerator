@@ -41,7 +41,7 @@ public class MDTools
 
     public static int Lerp(int s, int d, float t)
     { 
-        return (int)MathF.Floor(s + (d - s) * t);
+        return (int)Math.Floor(s + (d - s) * t);
     }
 
 }
