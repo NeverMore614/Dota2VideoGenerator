@@ -38,7 +38,6 @@ namespace MetaDota.DotaReplay
                 return false;
             }
 
-            _StartWorking();
         }
 
         public async Task _StartWorking()
@@ -107,14 +106,7 @@ namespace MetaDota.DotaReplay
             }
         }
 
-        public static Task StartRecordMovie()
-        {
-            if (Instance._task == null || Instance._task.IsCompleted)
-            {
-                Instance._task = Instance._StartRecordMovie();
-            }
-            return Instance._task;
-        }
+
 
 
     }

@@ -39,7 +39,6 @@ namespace MetaDota.DotaReplay
 
         public void Add(MDReplayGenerator mDReplayGenerator)
         {
-
             mDReplayGenerator.block = true;
             _task_queue.Enqueue(new Action(() =>
             {

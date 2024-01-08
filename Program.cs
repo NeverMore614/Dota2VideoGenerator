@@ -31,17 +31,19 @@ namespace ConsoleApp2
             MDFile.Init();
 
             //movie maker
-            if( MDMovieMaker.Instance.Init())return;
+            if(!MDMovieMaker.Instance.Init())return;
 
             //demo downloader
             MDReplayDownloader.Instance.Init();
+
+            MDDotaClientRequestor.Instance.Init();
+
+            MDDemoAnalystor.Instance.Init();
 
             //dota client
             DotaClient.Instance.Init(dotaPath);
 
 
-
-#if !DEBUG
             DotaClient.Instance.Reconnect();
             if (!DotaClient.Instance.IsLogonDota)
             { 
@@ -77,47 +79,28 @@ namespace ConsoleApp2
             //
             //inputSimulator.Mouse.MoveMouseTo(1000, 1000);
 
-#endif
-        }
 
-
-        static bool _prepareAnalystParams(CMsgDOTAMatch matchInfo, out string hero_name, out string slot, out string war_fog)
-        {
-            hero_name = "";
-            slot = "";
-            war_fog = "";
-            foreach (CMsgDOTAMatch.Player player in matchInfo.players)
-            {
-                if (player.account_id == 303440494)
-                {
-
-                    hero_name = DotaClient.Instance.GetHeroNameByID(player.hero_id);
-                    Console.WriteLine($"hero_name = {hero_name}");
-                    slot = player.player_slot.ToString();
-                    Console.WriteLine($"player_slot = {slot}");
-                    Console.WriteLine($"team_slot = {player.team_slot}");
-                    war_fog = "";
-                    return true;
-                }
-            }
-            return false;
         }
 
 
         static async Task CheckDownloadTask()
         {
             string requestStr = "";
+#if DEBUG
+            await Task.Delay(ClientParams.DOWNLOAD_CHECK_INTERVAL);
+            MDFile.ReadLine(ClientParams.MATCH_REQUEST_FILE, ref requestStr);
+            MDReplayGenerator.Generate(requestStr);
+            Console.WriteLine($"result : {MDReplayGenerator.GetResult(requestStr)}");
+#else
             while (true)
             {
                 await Task.Delay(ClientParams.DOWNLOAD_CHECK_INTERVAL);
-#if DEBUG
                 MDFile.ReadLine(ClientParams.MATCH_REQUEST_FILE, ref requestStr);
-#endif
                 MDReplayGenerator.Generate(requestStr);
                 Console.WriteLine($"result : {MDReplayGenerator.GetResult(requestStr)}");
             }
+#endif
         }
-
 
     }
 }
