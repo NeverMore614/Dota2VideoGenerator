@@ -37,6 +37,10 @@ namespace MetaDota.DotaReplay
         private string _request = "";
         public ulong match_id = 0;
         public uint account_id = 0;
+        public CMsgDOTAMatch match;
+
+        public bool block = false;
+        public EReplayGenerateResult eReplayGenerateResult = EReplayGenerateResult.Success;
 
 
         public MDReplayGenerator(string request)
@@ -49,8 +53,12 @@ namespace MetaDota.DotaReplay
 
         private Task<EReplayGenerateResult> _downloadTask;
 
-        bool _Generate()
+         bool _Generate()
         {
+            block = true;
+            eReplayGenerateResult = EReplayGenerateResult.Success;
+            match = null;
+
             if (string.IsNullOrEmpty(_request))
             {
                 Console.WriteLine($"Parse requset fail :EmptyOrNull");
@@ -115,10 +123,10 @@ namespace MetaDota.DotaReplay
 
             if (MDFile.FileExists(destFilePath))  return EReplayGenerateResult.Success; 
 
+
+
             //find or get .dem file
             string demoFilePath = Path.Combine(ClientParams.DEMO_DIR, string.Format("{0}.dem", match_id));
-
-
 
             CMsgDOTAMatch matchInfo = await _GetMatch();
 
@@ -132,7 +140,7 @@ namespace MetaDota.DotaReplay
                 return EReplayGenerateResult.DemoUnavailable;
 
             //download demo
-            await MDReplayDownloader._DownLoadReplay(matchInfo, demoFilePath);
+            MDReplayDownloader._DownLoadReplay(matchInfo, demoFilePath, this);
 
             //demo download fail
             if (!MDFile.FileExists(demoFilePath)) 

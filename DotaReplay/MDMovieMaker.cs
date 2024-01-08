@@ -18,6 +18,7 @@ namespace MetaDota.DotaReplay
 
         private Task _task;
         private Input _input;
+        static Queue<Task> _task_queue;
 
         public bool Init()
         {
@@ -36,13 +37,22 @@ namespace MetaDota.DotaReplay
                 Console.WriteLine("MDMovieMaker Init Fail:" + e.Message);
                 return false;
             }
+
+            _StartWorking();
         }
 
-        public async Task _StartRecordMovie()
+        public async Task _StartWorking()
         {
+            _task_queue = new Queue<Task>();
             while (true)
             {
-
+                await Task.Delay(5000);
+                if (_task_queue.Count > 0)
+                {
+                    Task task = _task_queue.Dequeue();
+                    task.Start();
+                    await task;
+                }
             }
         }
 
@@ -59,7 +69,6 @@ namespace MetaDota.DotaReplay
             Process[] processes = Process.GetProcessesByName("dota2");
             if (processes.Length == 0)
             {
-                Console.WriteLine("111");
                 File.WriteAllText(Path.Combine(DotaClient.dotaPath, "game/dota/cfg/autoexec.cfg"), playDemoCmd);
 
                 Process process = new Process();

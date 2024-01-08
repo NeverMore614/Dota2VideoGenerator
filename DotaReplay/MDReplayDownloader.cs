@@ -10,46 +10,21 @@ using static SteamKit2.Internal.CMsgDownloadRateStatistics;
 
 namespace MetaDota.DotaReplay
 {
-    internal class MDReplayDownloader
+    class MDReplayDownloader : MDFactory<MDReplayDownloader>
     {
 
-        static Queue<Task> _task_queue;
-        public async static Task Init()
+        public override async Task Work(MDReplayGenerator mDReplayGenerator)
         {
-            _task_queue = new Queue<Task>();
-            while (true)
+            string savePath = Path.Combine(ClientParams.DEMO_DIR, $"{mDReplayGenerator.match_id}.dem");
+            if (mDReplayGenerator.match == null)
             {
-                await Task.Delay(5000);
-                if (_task_queue.Count > 0)
-                {
-                    Task task = _task_queue.Dequeue();
-                    task.Start();
-                    await task;
-                }
+                mDReplayGenerator.eReplayGenerateResult = MDReplayGenerator.EReplayGenerateResult.NoMatch;
             }
-        }
-        public static Task _DownLoadReplay(CMsgDOTAMatch match, string savePath)
-        {
-            Task downloadTask = new Task(() => _DownLoadReplayAction(match, savePath));
-
-            _task_queue.Enqueue(downloadTask);
-
-            return downloadTask;
-        }
-
-        static void _DownLoadReplayAction(CMsgDOTAMatch match, string savePath)
-        {
-            if (match == null)
+            else if (mDReplayGenerator.match.replay_state != CMsgDOTAMatch.ReplayState.REPLAY_AVAILABLE)
             {
-                Console.WriteLine("No match details to display");
-                return;
+                mDReplayGenerator.eReplayGenerateResult = MDReplayGenerator.EReplayGenerateResult.DemoUnavailable;
             }
-            if (match.replay_state != CMsgDOTAMatch.ReplayState.REPLAY_AVAILABLE)
-            {
-                Console.WriteLine("demo unavailable:" + match.replay_state);
-                return;
-            }
-            if (File.Exists(savePath))
+            else if (File.Exists(savePath))
             {
                 return;
             }

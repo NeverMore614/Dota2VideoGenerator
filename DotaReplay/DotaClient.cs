@@ -14,6 +14,7 @@ namespace MetaDota.DotaReplay;
 
 class DotaClient : SingleTon<DotaClient>
 {
+
     Dictionary<uint, string> _heroNameDic;
     SteamClient client;
 

@@ -28,6 +28,9 @@
     <None Update="7z.exe">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Update="demo.exe">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Update="dota2HeroJson.txt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>

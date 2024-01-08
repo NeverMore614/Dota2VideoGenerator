@@ -23,22 +23,6 @@ namespace ConsoleApp2
         {
 #if DEBUG
             string dotaPath = "E:\\Steam\\steamapps\\common\\dota 2 beta";
-            Task.Run(() =>
-            {
-                Input input = new Input();
-                input.KeyboardFilterMode = KeyboardFilterMode.All;
-                input.Load();
-                Thread.Sleep(2000);
-                input.SendText("i love u //");
-                Thread.Sleep(1000);
-                input.Unload();
-            });
-            Console.Write("input:");
-            Console.ReadLine();
-            //DotaClient.Instance.Init(dotaPath);
-            //MDReplayGenerator.match_id = 7514943728;
-            //MDMovieMaker.Instance.CancelRecording();
-            return;
 #else
             Console.WriteLine("please input dota2 beta path :");
             string dotaPath = Console.ReadLine();
@@ -50,10 +34,14 @@ namespace ConsoleApp2
             if( MDMovieMaker.Instance.Init())return;
 
             //demo downloader
-            MDReplayDownloader.Init();
+            MDReplayDownloader.Instance.Init();
 
             //dota client
             DotaClient.Instance.Init(dotaPath);
+
+
+
+#if !DEBUG
             DotaClient.Instance.Reconnect();
             if (!DotaClient.Instance.IsLogonDota)
             { 
@@ -89,7 +77,7 @@ namespace ConsoleApp2
             //
             //inputSimulator.Mouse.MoveMouseTo(1000, 1000);
 
-
+#endif
         }
 
 
