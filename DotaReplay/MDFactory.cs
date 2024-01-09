@@ -23,7 +23,7 @@ namespace MetaDota.DotaReplay
 
          Queue<Action> _task_queue;
 
-        public async Task Init()
+        public virtual async Task Init()
         {
             _task_queue = new Queue<Action>();
             while (true)

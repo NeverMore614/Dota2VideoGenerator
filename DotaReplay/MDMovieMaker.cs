@@ -13,15 +13,17 @@ using Interceptor;
 
 namespace MetaDota.DotaReplay
 {
-    internal class MDMovieMaker : SingleTon<MDMovieMaker>
+    internal class MDMovieMaker : MDFactory<MDMovieMaker>
     {
 
-        private Task _task;
         private Input _input;
-        static Queue<Task> _task_queue;
+        private string _cfgFilePath = "";
+        private string _keyFilePath = "";
 
-        public bool Init()
+
+        public override async Task Init()
         {
+            base.Init();
             try
             {
                 _input = new Input();
@@ -30,39 +32,40 @@ namespace MetaDota.DotaReplay
                 Console.Write("To Start DirectX Input, please enter any key:");
                 Console.ReadLine();
                 Console.Write("MDMovieMaker Init Success");
-                return true;
             }
             catch (Exception e)
             {
                 Console.WriteLine("MDMovieMaker Init Fail:" + e.Message);
+            }
+
+        }
+
+        public override async Task Work(MDReplayGenerator generator)
+        {
+            _cfgFilePath = Path.Combine(ClientParams.REPLAY_CFG_DIR, "/replayCfg.txt");
+            _keyFilePath = Path.Combine(ClientParams.REPLAY_CFG_DIR, "/keyCfg.txt");
+            if (CancelRecording(generator));
+            { 
+                
+            }
+
+            generator.block = false;
+        }
+
+        public bool CancelRecording(MDReplayGenerator generator)
+        {
+            if (!File.Exists(generator.demoFilePath))
+            {
+                generator.eReplayGenerateResult = MDReplayGenerator.EReplayGenerateResult.DemoDownloadFail;
+                return false;
+            }
+            else if (!File.Exists(_cfgFilePath) || (!File.Exists(_keyFilePath)))
+            {
+                generator.eReplayGenerateResult = MDReplayGenerator.EReplayGenerateResult.AnalystFail;
                 return false;
             }
 
-        }
-
-        public async Task _StartWorking()
-        {
-            _task_queue = new Queue<Task>();
-            while (true)
-            {
-                await Task.Delay(5000);
-                if (_task_queue.Count > 0)
-                {
-                    Task task = _task_queue.Dequeue();
-                    task.Start();
-                    await task;
-                }
-            }
-        }
-
-        public void CancelRecording()
-        {
-            if (!DotaClient.Instance.IsInit)
-            {
-                Console.WriteLine("DotaClient  Is not Init");
-                return;
-            }
-
+            File.Copy(generator.demoFilePath, $"{DotaClient.dotaReplayPath}/{generator.match_id}.dem");
             string playDemoCmd = $"playdemo replays/12312\nshowConsole";
 
             Process[] processes = Process.GetProcessesByName("dota2");

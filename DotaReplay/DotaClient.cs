@@ -40,6 +40,10 @@ class DotaClient : SingleTon<DotaClient>
 
     public static string dotaMoviePath = "../movie";
 
+    public static string dotaCfgPath = "game/dota/cfg";
+
+    public static string dotaReplayPath = "game/dota/replays";
+
     public static string dotaPath = "";
 
     public bool IsInit = false;
@@ -83,6 +87,7 @@ class DotaClient : SingleTon<DotaClient>
         dotaPath = dota2BetaPath;
         dotaLauncherPath = Path.Combine(dotaPath, dotaLauncherPath);
         dotaMoviePath = Path.Combine(dotaPath, dotaMoviePath);
+        dotaCfgPath = Path.Combine(dotaPath, dotaCfgPath);
     }
 
     void _init_hero_json()
@@ -134,6 +139,7 @@ class DotaClient : SingleTon<DotaClient>
         {
             // continue running callbacks until we get match details
             callbackMgr.RunWaitCallbacks( TimeSpan.FromSeconds( 1 ) );
+            //await Task.Delay( 1000 );
             Console.WriteLine("WaitLogon...");
         }
     }

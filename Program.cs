@@ -19,7 +19,7 @@ namespace ConsoleApp2
 {
     class Program
     {
-        public static void Main(string[] args)
+        public async static Task Main(string[] args)
         {
 #if DEBUG
             string dotaPath = "E:\\Steam\\steamapps\\common\\dota 2 beta";
@@ -31,7 +31,7 @@ namespace ConsoleApp2
             MDFile.Init();
 
             //movie maker
-            if(!MDMovieMaker.Instance.Init())return;
+            MDMovieMaker.Instance.Init();
 
             //demo downloader
             MDReplayDownloader.Instance.Init();

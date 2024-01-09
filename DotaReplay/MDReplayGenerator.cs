@@ -105,13 +105,14 @@ namespace MetaDota.DotaReplay
             block = true;
             eReplayGenerateResult = EReplayGenerateResult.Success;
             match = null;
-            demoFilePath = demoFilePath = Path.Combine(ClientParams.DEMO_DIR, string.Format("{0}.dem", match_id));
+            demoFilePath = Path.Combine(ClientParams.DEMO_DIR, string.Format("{0}.dem", match_id));
             replayFilePath = Path.Combine(ClientParams.REPLAY_DIR, string.Format("{0}_{1}.mp4", match_id, account_id));
             //factory task
-            mDFactories = new IMDFactory[3] {
+            mDFactories = new IMDFactory[4] {
                 MDDotaClientRequestor.Instance,
                 MDReplayDownloader.Instance,
                 MDDemoAnalystor.Instance,
+                MDMovieMaker.Instance,
             };
         }
 
