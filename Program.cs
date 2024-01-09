@@ -53,31 +53,11 @@ namespace ConsoleApp2
 
             Console.WriteLine("dota2 launch success! start check replay");
 
-            //CMsgDOTAMatch match = MDReplayGenerator.GetMatch(7514943728);
-            //if (match != null)
-            //{
-            //    string a, b, c;
-            //    _prepareAnalystParams(match, out a, out b, out c);
-            //    Console.WriteLine($"getDetails :{a}  {b}  {c}");
-            //}
-
             CheckDownloadTask().Wait();
 
             Console.WriteLine("Dota Client DisConnected, Please ReConnect");
             Console.ReadLine();
 
-
-            //ReplayDownloader.Download(7511635609);
-            //MouseSimulation.MoveTo(-1500, 0, 1000, true);
-            //MouseSimulation.Click(0, 0);
-            //KeyboardSimulation.KeyboardClick('A', false);
-            //
-            //System.Drawing.Color color = Tools.GetPixelColor(999, 999);
-            //Console.WriteLine($"Color r{color.R} g{color.G} b{color.B}");
-
-            //InputSimulator inputSimulator = new InputSimulator();
-            //
-            //inputSimulator.Mouse.MoveMouseTo(1000, 1000);
 
 
         }
