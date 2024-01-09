@@ -55,8 +55,9 @@ namespace MetaDota.DotaReplay
                 demoP.StartInfo.Arguments = $"{demoFilePath} {hero_name} {slot} {war_fog}";
                 demoP.Start();
                 demoP.WaitForExit();
+                Console.WriteLine("demo analyst success");
             }
-
+            Console.WriteLine("demo analyst over");
             return File.Exists(ClientParams.REPLAY_CFG_DIR + "/replayCfg.txt") && File.Exists(ClientParams.REPLAY_CFG_DIR + "/keyCfg.txt");
 
         }

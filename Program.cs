@@ -13,6 +13,8 @@ using WindowsInput;
 using MetaDota.InputSimulation;
 using MetaDota.Common;
 using Interceptor;
+using MetaDota.Common.Native;
+using System.Drawing;
 
 
 namespace ConsoleApp2
@@ -23,6 +25,8 @@ namespace ConsoleApp2
         {
 #if DEBUG
             string dotaPath = "E:\\Steam\\steamapps\\common\\dota 2 beta";
+            //await CheckColor();
+            //return;
 #else
             Console.WriteLine("please input dota2 beta path :");
             string dotaPath = Console.ReadLine();
@@ -57,11 +61,25 @@ namespace ConsoleApp2
 
             Console.WriteLine("Dota Client DisConnected, Please ReConnect");
             Console.ReadLine();
-
-
-
         }
 
+
+        static async Task CheckColor()
+        {
+            MDMovieMaker.Instance.Init();
+
+            Process[] processes = Process.GetProcessesByName("dota2");
+            NativeMethods.SwitchToThisWindow(processes[0].MainWindowHandle, true);
+            MDMovieMaker.Instance._input.SendText(@"\");
+            //Color color = Color.White;
+            //while (true)
+            //{ 
+            //    await Task.Delay(1000);
+            //    POINT cPOINT = MDTools.GetCursorPosition();
+            //    color = MDTools.GetPixelColor(cPOINT.X, cPOINT.Y);
+            //    Console.WriteLine($"x:{cPOINT.X} y:{cPOINT.Y} color : {color.ToArgb()}");
+            //}
+        }
 
         static async Task CheckDownloadTask()
         {

@@ -10,13 +10,14 @@ using WindowsInput;
 using WindowsInput.Native;
 using MetaDota.InputSimulation;
 using Interceptor;
+using System.Drawing;
 
 namespace MetaDota.DotaReplay
 {
     internal class MDMovieMaker : MDFactory<MDMovieMaker>
     {
 
-        private Input _input;
+        public Input _input;
         private string _cfgFilePath = "";
         private string _keyFilePath = "";
 
@@ -42,11 +43,46 @@ namespace MetaDota.DotaReplay
 
         public override async Task Work(MDReplayGenerator generator)
         {
-            _cfgFilePath = Path.Combine(ClientParams.REPLAY_CFG_DIR, "/replayCfg.txt");
-            _keyFilePath = Path.Combine(ClientParams.REPLAY_CFG_DIR, "/keyCfg.txt");
-            if (CancelRecording(generator));
-            { 
-                
+            _cfgFilePath = Path.Combine(ClientParams.REPLAY_CFG_DIR, "replayCfg.txt");
+            _keyFilePath = Path.Combine(ClientParams.REPLAY_CFG_DIR, "keyCfg.txt");
+            if (CancelRecording(generator))
+            {
+                if (!Directory.Exists(DotaClient.dotaMoviePath))
+                {
+                    Directory.CreateDirectory(DotaClient.dotaMoviePath);
+                }
+                //Delete movie clip file
+                foreach (String file in Directory.GetFiles(DotaClient.dotaMoviePath))
+                {
+                    File.Delete(file);
+                }
+
+                //check is in demo
+                Color pixelColor = MDTools.GetPixelColor(131, 77);
+                while (pixelColor.ToArgb() != -1840390)
+                {
+                    await Task.Delay(1000);
+                    pixelColor = MDTools.GetPixelColor(131, 77);
+                }
+                _input.SendText("exec replayCfg.txt");
+                string[] keyLines = File.ReadAllLines(_keyFilePath);
+                string clipFile = "";
+                for (int i = 0; i < keyLines.Length; i++)
+                {
+                    string[] fileKey = keyLines[i].Split('$');
+                    if (fileKey.Length == 2)
+                    {
+                        clipFile = Path.Combine(DotaClient.dotaMoviePath, fileKey[0]);
+                        while (!File.Exists(clipFile))
+                        {
+                            Task.Delay(500);
+                        }
+                        _input.SendText(fileKey[1]);
+                    }
+                    
+                }
+               
+
             }
 
             generator.block = false;
@@ -66,13 +102,14 @@ namespace MetaDota.DotaReplay
             }
 
             File.Copy(generator.demoFilePath, $"{DotaClient.dotaReplayPath}/{generator.match_id}.dem");
-            string playDemoCmd = $"playdemo replays/12312\nshowConsole";
+            File.Copy(_cfgFilePath, $"{DotaClient.dotaCfgPath}/replayCfg.txt");
+
+            string playDemoCmd = $"playdemo replays/{generator.match_id}\nshowConsole";
 
             Process[] processes = Process.GetProcessesByName("dota2");
             if (processes.Length == 0)
             {
-                File.WriteAllText(Path.Combine(DotaClient.dotaPath, "game/dota/cfg/autoexec.cfg"), playDemoCmd);
-
+                File.WriteAllText(Path.Combine(DotaClient.dotaCfgPath, "autoexec.cfg"), playDemoCmd);
                 Process process = new Process();
                 process.StartInfo.FileName = DotaClient.dotaLauncherPath;
                 process.StartInfo.Arguments = "-console";
@@ -80,33 +117,17 @@ namespace MetaDota.DotaReplay
             }
             else
             {
-                Console.WriteLine($"222 {processes.Length}");
-                Task.Run(() =>
-                {
-                    Input input = new Input();
-                    input.Load();
-                    Thread.Sleep(3000);
-                    input.SendKey(Keys.G, KeyState.Down);
-                });
                 NativeMethods.SwitchToThisWindow(processes[0].MainWindowHandle, true);
-                Thread.Sleep(1000);
-                Input input = new Input();
-                input.Load();
-                Thread.Sleep(3000);
-
-                input.SendKey(Keys.BackslashPipe, KeyState.Down);
-
-                //MouseSimulation.MoveTo(250, 150);
-                //MouseSimulation.Click(0,0);
-                Thread.Sleep(500);
-                //input.SendKeys(Keys.Enter);
-                //inputSimulation.Keyboard.Sleep(2000);
-                //inputSimulation.Keyboard.KeyPress(VirtualKeyCode.OEM_5);
-                //inputSimulation.Keyboard.Sleep(1000);
-                //inputSimulation.Keyboard.TextEntry(playDemoCmd);
-                //inputSimulation.Keyboard.Sleep(500);
-                //inputSimulation.Keyboard.KeyPress(VirtualKeyCode.RETURN);
+                Task.Run(async () =>
+                {
+                    await Task.Delay(3000);
+                    _input.SendKey(Keys.BackslashPipe, KeyState.Down);
+                    _input.SendText($"playdemo replays/{generator.match_id}");
+                    _input.SendKey(Keys.Enter, KeyState.Down);
+                }).Wait();
             }
+
+            return true;
         }
 
 
