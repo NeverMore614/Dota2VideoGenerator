@@ -11,6 +11,11 @@ using WindowsInput.Native;
 using MetaDota.InputSimulation;
 using Interceptor;
 using System.Drawing;
+using static Dota2.GC.Dota.Internal.CMsgGCToClientSocialMatchDetailsResponse;
+using static SteamKit2.GC.Dota.Internal.CMsgSteamLearn_InferenceBackend_Response;
+using static SteamKit2.Internal.CContentBuilder_CommitAppBuild_Request;
+using SteamKit2;
+using static SteamKit2.GC.Dota.Internal.CDOTAMatchMetadata;
 
 namespace MetaDota.DotaReplay
 {
@@ -52,10 +57,12 @@ namespace MetaDota.DotaReplay
                     Directory.CreateDirectory(DotaClient.dotaMoviePath);
                 }
                 //Delete movie clip file
+                Console.WriteLine("delete movie file ing ...");
                 foreach (String file in Directory.GetFiles(DotaClient.dotaMoviePath))
                 {
                     File.Delete(file);
                 }
+                Console.WriteLine("delete movie file ing over");
 
                 //check is in demo
                 Color pixelColor = MDTools.GetPixelColor(131, 77);
@@ -65,6 +72,7 @@ namespace MetaDota.DotaReplay
                     pixelColor = MDTools.GetPixelColor(131, 77);
                 }
                 _input.SendText("exec replayCfg.txt");
+                _input.SendKey(Keys.Enter, KeyState.Down);
                 string[] keyLines = File.ReadAllLines(_keyFilePath);
                 string clipFile = "";
                 for (int i = 0; i < keyLines.Length; i++)
@@ -79,15 +87,20 @@ namespace MetaDota.DotaReplay
                         }
                         _input.SendText(fileKey[1]);
                     }
-                    
                 }
-               
+
+                using (Process zipProcess = new Process())
+                {
+                    zipProcess.StartInfo.FileName = "ffmpeg.exe";
+                    zipProcess.StartInfo.RedirectStandardInput = true;
+                    zipProcess.StartInfo.Arguments = $"-y -r 30 -i {Path.GetFullPath(DotaClient.dotaMoviePath)}\\%04d.jpg -i {Path.GetFullPath(DotaClient.dotaMoviePath)}\\.wav replays\\{generator.match_id}_{generator.account_id}.mp4";
+                    zipProcess.Start();
+                    zipProcess.WaitForExit();
+                }
 
             }
-
             generator.block = false;
         }
-
         public bool CancelRecording(MDReplayGenerator generator)
         {
             if (!File.Exists(generator.demoFilePath))
@@ -101,8 +114,8 @@ namespace MetaDota.DotaReplay
                 return false;
             }
 
-            File.Copy(generator.demoFilePath, $"{DotaClient.dotaReplayPath}/{generator.match_id}.dem");
-            File.Copy(_cfgFilePath, $"{DotaClient.dotaCfgPath}/replayCfg.txt");
+            File.Copy(generator.demoFilePath, $"{DotaClient.dotaReplayPath}/{generator.match_id}.dem", true);
+            File.Copy(_cfgFilePath, $"{DotaClient.dotaCfgPath}/replayCfg.txt", true);
 
             string playDemoCmd = $"playdemo replays/{generator.match_id}\nshowConsole";
 

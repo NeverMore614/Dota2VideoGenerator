@@ -39,6 +39,7 @@ namespace MetaDota.DotaReplay
 
         public void Add(MDReplayGenerator mDReplayGenerator)
         {
+            Console.WriteLine(typeof(T).Name + " Add~");
             mDReplayGenerator.block = true;
             _task_queue.Enqueue(new Action(() =>
             {
@@ -47,8 +48,8 @@ namespace MetaDota.DotaReplay
         }
 
         virtual public async Task Work(MDReplayGenerator mDReplayGenerator)
-        { 
-            
+        {
+            Console.WriteLine(typeof(T).Name + " work~");
         }
     }
 }

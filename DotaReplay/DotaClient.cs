@@ -88,6 +88,7 @@ class DotaClient : SingleTon<DotaClient>
         dotaLauncherPath = Path.Combine(dotaPath, dotaLauncherPath);
         dotaMoviePath = Path.Combine(dotaPath, dotaMoviePath);
         dotaCfgPath = Path.Combine(dotaPath, dotaCfgPath);
+        dotaReplayPath = Path.Combine(dotaPath, dotaReplayPath);
     }
 
     void _init_hero_json()
@@ -232,7 +233,7 @@ class DotaClient : SingleTon<DotaClient>
         client.Send( playGame );
 
         // delay a little to give steam some time to establish a GC connection to us
-        Thread.Sleep( 5000 );
+        Thread.Sleep( 6000 );
 
         // inform the dota GC that we want a session
         var clientHello = new ClientGCMsgProtobuf<SteamKit2.GC.Dota.Internal.CMsgClientHello>( ( uint )EGCBaseClientMsg.k_EMsgGCClientHello );

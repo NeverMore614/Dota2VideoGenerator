@@ -24,7 +24,7 @@ namespace ConsoleApp2
         public async static Task Main(string[] args)
         {
 #if DEBUG
-            string dotaPath = "E:\\Steam\\steamapps\\common\\dota 2 beta";
+            string dotaPath = "E:\\Steam\\steam\\steamapps\\common\\dota 2 beta";
             //await CheckColor();
             //return;
 #else
@@ -68,17 +68,17 @@ namespace ConsoleApp2
         {
             MDMovieMaker.Instance.Init();
 
-            Process[] processes = Process.GetProcessesByName("dota2");
-            NativeMethods.SwitchToThisWindow(processes[0].MainWindowHandle, true);
-            MDMovieMaker.Instance._input.SendText(@"\");
-            //Color color = Color.White;
-            //while (true)
-            //{ 
-            //    await Task.Delay(1000);
-            //    POINT cPOINT = MDTools.GetCursorPosition();
-            //    color = MDTools.GetPixelColor(cPOINT.X, cPOINT.Y);
-            //    Console.WriteLine($"x:{cPOINT.X} y:{cPOINT.Y} color : {color.ToArgb()}");
-            //}
+            //Process[] processes = Process.GetProcessesByName("dota2");
+            //NativeMethods.SwitchToThisWindow(processes[0].MainWindowHandle, true);
+            //MDMovieMaker.Instance._input.SendText(@"\");
+            Color color = Color.White;
+            while (true)
+            { 
+                await Task.Delay(1000);
+                POINT cPOINT = MDTools.GetCursorPosition();
+                color = MDTools.GetPixelColor(cPOINT.X, cPOINT.Y);
+                Console.WriteLine($"x:{cPOINT.X} y:{cPOINT.Y} color : {color.ToArgb()}");
+            }
         }
 
         static async Task CheckDownloadTask()

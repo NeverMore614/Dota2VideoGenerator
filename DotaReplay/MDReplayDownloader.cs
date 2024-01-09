@@ -17,7 +17,7 @@ namespace MetaDota.DotaReplay
         {
             string savePath = Path.Combine(ClientParams.DEMO_DIR, $"{generator.match_id}.dem");
             CMsgDOTAMatch match = generator.match;
-
+            Console.WriteLine("replay available: " + match.replay_state);
             if (match == null)
             {
                 generator.eReplayGenerateResult = MDReplayGenerator.EReplayGenerateResult.NoMatch;
@@ -41,7 +41,14 @@ namespace MetaDota.DotaReplay
                     var tmp = zip + ".tmp";
                     using (var web = new WebClient())
                     {
-                        await web.DownloadFileTaskAsync(_download_url, tmp);
+                        try
+                        {
+                            await web.DownloadFileTaskAsync(_download_url, tmp);
+                        }
+                        catch (Exception ex)
+                        {
+                            Console.WriteLine("download err:" + ex.ToString());
+                        }
                     }
 
                     File.Move(tmp, zip, true);
