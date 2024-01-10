@@ -25,13 +25,13 @@ namespace ConsoleApp2
         public async static Task Main(string[] args)
         {
 #if DEBUG
-            Console.WriteLine("please input dota2 beta path :");
 
 
 
             //string dotaPath = "E:\\Steam\\steam\\steamapps\\common\\dota 2 beta";
             //await CheckColor();
-            string dotaPath = Console.ReadLine();
+            string dotaPath = File.ReadAllText("config/dota2Path.txt");
+            Console.WriteLine($"dota2 path :{dotaPath}");
 
 #endif
 

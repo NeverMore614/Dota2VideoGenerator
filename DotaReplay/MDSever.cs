@@ -17,7 +17,7 @@ namespace MetaDota.DotaReplay
 
         public void Start()
         {
-            IPAddress ip = IPAddress.Parse("127.0.0.1");
+            IPAddress ip = IPAddress.Parse("10.6.47.242");
             _socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
             _socket.Bind(new IPEndPoint(ip, _port));
             _socket.Listen(10);
