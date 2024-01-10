@@ -21,18 +21,23 @@ namespace ConsoleApp2
 {
     class Program
     {
+        public static Queue<string> requestQueue;
         public async static Task Main(string[] args)
         {
 #if DEBUG
-            string dotaPath = "E:\\Steam\\steam\\steamapps\\common\\dota 2 beta";
-            //await CheckColor();
-            //return;
-#else
             Console.WriteLine("please input dota2 beta path :");
+
+
+
+            //string dotaPath = "E:\\Steam\\steam\\steamapps\\common\\dota 2 beta";
+            //await CheckColor();
             string dotaPath = Console.ReadLine();
+
 #endif
 
             MDFile.Init();
+
+            MDSever.Instance.Start();
 
             //movie maker
             MDMovieMaker.Instance.Init();
@@ -83,21 +88,27 @@ namespace ConsoleApp2
 
         static async Task CheckDownloadTask()
         {
+            requestQueue = new Queue<string>();
+            string[] requestArry = File.ReadAllLines(ClientParams.MATCH_REQUEST_FILE);
+            for (int i = 0; i < requestArry.Length; i++)
+            {
+                requestQueue.Enqueue(requestArry[i]);
+            }
             string requestStr = "";
-#if DEBUG
-            await Task.Delay(ClientParams.DOWNLOAD_CHECK_INTERVAL);
-            MDFile.ReadLine(ClientParams.MATCH_REQUEST_FILE, ref requestStr);
-            MDReplayGenerator.Generate(requestStr);
-            Console.WriteLine($"result : {MDReplayGenerator.GetResult(requestStr)}");
-#else
             while (true)
             {
                 await Task.Delay(ClientParams.DOWNLOAD_CHECK_INTERVAL);
-                MDFile.ReadLine(ClientParams.MATCH_REQUEST_FILE, ref requestStr);
-                MDReplayGenerator.Generate(requestStr);
-                Console.WriteLine($"result : {MDReplayGenerator.GetResult(requestStr)}");
+                if (requestQueue.Count > 0)
+                {
+                    requestStr = requestQueue.Dequeue();
+                    if (!string.IsNullOrEmpty(requestStr))
+                    {
+                        MDReplayGenerator.Generate(requestStr);
+                        Console.WriteLine($"result : {MDReplayGenerator.GetResult(requestStr)}");
+                    }
+
+                }
             }
-#endif
         }
 
     }
