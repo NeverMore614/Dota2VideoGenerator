@@ -12,10 +12,56 @@ namespace MetaDota.DotaReplay
 {
     internal class MDSever : SingleTon<MDSever>
     {
-        private static int _port = 8885;
-        private static byte[] _result = new byte[1024];
-        private static Socket _socket;
+        class SocketClient
+        {
+            public Socket Socket;
+            public bool Heartbeat = false;
+            public byte[] ReceiveBytes;
+            public Thread Connect;
+            public bool shouldStop = false;
+            public SocketClient()
+            {
+                Heartbeat = false;
+                ReceiveBytes = new byte[1024];
+            }
 
+            public void Accept(Socket socket)
+            { 
+            
+            }
+
+            public void Close()
+            {
+                Console.WriteLine("close connect");
+                Heartbeat = false;
+                shouldStop = true;
+                Connect.Join();
+                Socket.Close();
+                Socket = null;
+                Console.WriteLine("close connect over");
+            }
+
+            public bool IsIdle()
+            {
+                return Socket == null;
+            }
+        }
+
+        private SocketClient[] socketClients;
+
+        private Socket _socket;
+
+        public MDSever()
+        {
+            socketClients = new SocketClient[10];
+            for (int i = 0; i < socketClients.Length; i++)
+            {
+                socketClients[i] = new SocketClient();
+            }
+
+            Thread thread = new Thread(HeartbeatCheck);
+            thread.Start();
+        }
         public void Start()
         {
             if (!File.Exists("config/ipConfig.txt"))
@@ -45,26 +91,69 @@ namespace MetaDota.DotaReplay
         }
 
 
-        private static void ListenClientConnect()
+        private void ListenClientConnect()
         {
             while (true)
             {
                 Socket clientSocket = _socket.Accept();
-                Thread thread = new Thread(Working);
-                thread.Start(clientSocket);
+                bool save = false;
+                for (int i = 0; i < socketClients.Length; i++)
+                {
+                    if (socketClients[i].IsIdle())
+                    {
+                        socketClients[i].Accept(clientSocket);
+                        save = true;
+                        break;
+                    }
+                }
+                if (!save)
+                {
+                    clientSocket.Close();
+                }
+                   
+
             }
         }
 
-        static void Working(object client)
+        static void Working(object o)
         {
-            Socket clientSocket = client as Socket;
-            while (clientSocket.Connected)
+            SocketClient socketClient = o as SocketClient;
+            Socket socket = socketClient.Socket;
+            while (!socketClient.shouldStop)
             {
-                
-                int bytes = clientSocket.Receive(_result);
-                string receivedData = Encoding.ASCII.GetString(_result, 0, bytes);
-                Console.WriteLine("received from client :" + receivedData);
-                Program.requestQueue.Enqueue(receivedData);
+                int bytes = socket.Receive(socketClient.ReceiveBytes);
+                if (bytes > 0)
+                {
+                    string receivedData = Encoding.ASCII.GetString(socketClient.ReceiveBytes, 0, bytes);
+                    Console.WriteLine("received from client :" + receivedData);
+                    Program.requestQueue.Enqueue(receivedData);
+                }
+
+            }
+        }
+
+        void HeartbeatCheck()
+        {
+            while (true)
+            {
+                Thread.Sleep(10000);
+                for (int i = 0; i < socketClients.Length; i++)
+                {
+                    SocketClient socketClient = socketClients[i];
+                    if (socketClient.Socket != null)
+                    {
+                        if (socketClient.Heartbeat)
+                        {
+                            socketClient.Heartbeat = false;
+                        }
+                        else
+                        {
+                            socketClient.Close();
+                    
+                        }
+   
+                    }
+                }
             }
         }
     }
