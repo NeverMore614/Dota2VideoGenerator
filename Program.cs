@@ -21,7 +21,7 @@ namespace ConsoleApp2
 {
     class Program
     {
-        public static Queue<string> requestQueue;
+        public static Queue<string> requestQueue = new Queue<string>();
         public async static Task Main(string[] args)
         {
 #if DEBUG
@@ -38,6 +38,8 @@ namespace ConsoleApp2
             MDFile.Init();
 
             MDSever.Instance.Start();
+
+            return;
 
             //movie maker
             MDMovieMaker.Instance.Init();

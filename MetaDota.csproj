@@ -28,6 +28,9 @@
     <None Update="7z.exe">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Update="config\ipConfig.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Update="config\dota2Path.txt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>

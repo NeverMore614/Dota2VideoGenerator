@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using System.Net;
 using System.Net.Sockets;
 using ConsoleApp2;
+using SteamKit2.CDN;
 
 namespace MetaDota.DotaReplay
 {
@@ -17,9 +18,26 @@ namespace MetaDota.DotaReplay
 
         public void Start()
         {
-            IPAddress ip = IPAddress.Parse("10.6.47.242");
+            if (!File.Exists("config/ipConfig.txt"))
+            {
+                File.Create("config/ipConfig.txt");
+            }
+            string ipConfig = File.ReadAllText("config/ipConfig.txt");
+            if (string.IsNullOrEmpty(ipConfig))
+            {
+                Console.Write("please input your ip address(xxx.xxx.xxx.xxx:port):");
+                ipConfig = Console.ReadLine();
+            }
+            string[] ips = ipConfig.Split(":");
+            if (ips.Length != 2)
+            {
+                Console.Write("wroing ipconfig:" + ipConfig);
+            }
+            File.WriteAllText("config/ipConfig.txt", ipConfig);
+
+            IPAddress ip = IPAddress.Parse(ips[0]);
             _socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
-            _socket.Bind(new IPEndPoint(ip, _port));
+            _socket.Bind(new IPEndPoint(ip, int.Parse(ips[1])));
             _socket.Listen(10);
             Console.WriteLine("meta dota server start");
             Thread thread = new Thread(ListenClientConnect);
@@ -32,6 +50,17 @@ namespace MetaDota.DotaReplay
             while (true)
             {
                 Socket clientSocket = _socket.Accept();
+                Thread thread = new Thread(Working);
+                thread.Start(clientSocket);
+            }
+        }
+
+        static void Working(object client)
+        {
+            Socket clientSocket = client as Socket;
+            while (clientSocket.Connected)
+            {
+                
                 int bytes = clientSocket.Receive(_result);
                 string receivedData = Encoding.ASCII.GetString(_result, 0, bytes);
                 Console.WriteLine("received from client :" + receivedData);
