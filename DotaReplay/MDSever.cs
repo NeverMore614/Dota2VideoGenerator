@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Net;
 using System.Net.Sockets;
+
 using ConsoleApp2;
 using SteamKit2.CDN;
 
@@ -15,13 +16,12 @@ namespace MetaDota.DotaReplay
         class SocketClient
         {
             public Socket Socket;
-            public bool Heartbeat = false;
+            public int Heartbeat = 0;
             public byte[] ReceiveBytes;
             public Thread Connect;
             public bool shouldStop = false;
             public SocketClient()
             {
-                Heartbeat = false;
                 ReceiveBytes = new byte[1024];
             }
 
@@ -32,13 +32,12 @@ namespace MetaDota.DotaReplay
                 thread.Start(this);
                 Connect = thread;
                 shouldStop = false;
-                Heartbeat = false;
+                Heartbeat = 10;
             }
 
             public void Close()
             {
                 Console.WriteLine("close connect");
-                Heartbeat = false;
                 shouldStop = true;
                 Socket.Close();
                 Connect.Join();
@@ -56,6 +55,8 @@ namespace MetaDota.DotaReplay
 
         private Socket _socket;
 
+        private IPAddress _ip;
+
         public MDSever()
         {
             socketClients = new SocketClient[10];
@@ -64,8 +65,16 @@ namespace MetaDota.DotaReplay
                 socketClients[i] = new SocketClient();
             }
 
-            Thread thread = new Thread(HeartbeatCheck);
-            thread.Start();
+            var host = Dns.GetHostEntry(Dns.GetHostName());
+            foreach (IPAddress iPAddress in host.AddressList)
+            {
+                Console.WriteLine($"{iPAddress}");
+                if (iPAddress.AddressFamily == AddressFamily.InterNetwork)
+                { 
+                    _ip = iPAddress;
+                }
+            }
+
         }
         public void Start()
         {
@@ -73,26 +82,30 @@ namespace MetaDota.DotaReplay
             {
                 File.Create("config/ipConfig.txt");
             }
-            string ipConfig = File.ReadAllText("config/ipConfig.txt");
-            if (string.IsNullOrEmpty(ipConfig))
+            string port = File.ReadAllText("config/serverPort.txt");
+            if (string.IsNullOrEmpty(port))
             {
-                Console.Write("please input your ip address(xxx.xxx.xxx.xxx:port):");
-                ipConfig = Console.ReadLine();
+                Console.Write("please input your port number:");
+                port = Console.ReadLine();
             }
-            string[] ips = ipConfig.Split(":");
-            if (ips.Length != 2)
+            File.WriteAllText("config/serverPort.txt", port);
+            try
             {
-                Console.Write("wroing ipconfig:" + ipConfig);
-            }
-            File.WriteAllText("config/ipConfig.txt", ipConfig);
+                _socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+                _socket.Bind(new IPEndPoint(_ip, int.Parse(port)));
+                _socket.Listen(10);
+                Console.WriteLine("meta dota server start success, ur ipaddress is:" + _ip.ToString() + ":" + port);
 
-            IPAddress ip = IPAddress.Parse(ips[0]);
-            _socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
-            _socket.Bind(new IPEndPoint(ip, int.Parse(ips[1])));
-            _socket.Listen(10);
-            Console.WriteLine("meta dota server start");
-            Thread thread = new Thread(ListenClientConnect);
-            thread.Start();
+                Thread thread = new Thread(ListenClientConnect);
+                thread.Start();
+
+                Thread thread1 = new Thread(HeartbeatCheck);
+                thread1.Start();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("meta dota server start fail " + ex.ToString());
+            }
         }
 
 
@@ -132,37 +145,49 @@ namespace MetaDota.DotaReplay
                     if (bytes > 0)
                     {
                         string receivedData = Encoding.ASCII.GetString(socketClient.ReceiveBytes, 0, bytes);
-                        Console.WriteLine("received from client :" + receivedData);
-                        Program.requestQueue.Enqueue(receivedData);
+          
+                        string[] interfaceAndParam = receivedData.Split('/');
+                        if (interfaceAndParam.Length == 2)
+                        {
+                            switch (interfaceAndParam[0])
+                            {
+                                case "heart":
+                                    socketClient.Heartbeat = 10;
+                                    break;
+                                case "match":
+                                    Program.requestQueue.Enqueue(interfaceAndParam[1]);
+                                    break;
+                            }
+                        }
+                        else
+                        {
+                            Console.WriteLine("invalid request :" + receivedData);
+                        }
                     }
                 }
                 catch
-                { 
-                    
+                {
+                    socketClient.shouldStop = true;
                 }
-
-
             }
         }
+
+
+
 
         void HeartbeatCheck()
         {
             while (true)
             {
-                Thread.Sleep(10000);
+                Thread.Sleep(1000);
                 for (int i = 0; i < socketClients.Length; i++)
                 {
                     SocketClient socketClient = socketClients[i];
                     if (socketClient.Socket != null)
                     {
-                        if (socketClient.Heartbeat)
-                        {
-                            socketClient.Heartbeat = false;
-                        }
-                        else
+                        if (0 > --socketClient.Heartbeat )
                         {
                             socketClient.Close();
-                    
                         }
    
                     }
