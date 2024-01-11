@@ -26,8 +26,13 @@ namespace MetaDota.DotaReplay
             }
 
             public void Accept(Socket socket)
-            { 
-            
+            {
+                Socket = socket;
+                Thread thread = new Thread(Working);
+                thread.Start(this);
+                Connect = thread;
+                shouldStop = false;
+                Heartbeat = false;
             }
 
             public void Close()
@@ -35,8 +40,8 @@ namespace MetaDota.DotaReplay
                 Console.WriteLine("close connect");
                 Heartbeat = false;
                 shouldStop = true;
-                Connect.Join();
                 Socket.Close();
+                Connect.Join();
                 Socket = null;
                 Console.WriteLine("close connect over");
             }
@@ -121,13 +126,21 @@ namespace MetaDota.DotaReplay
             Socket socket = socketClient.Socket;
             while (!socketClient.shouldStop)
             {
-                int bytes = socket.Receive(socketClient.ReceiveBytes);
-                if (bytes > 0)
+                try
                 {
-                    string receivedData = Encoding.ASCII.GetString(socketClient.ReceiveBytes, 0, bytes);
-                    Console.WriteLine("received from client :" + receivedData);
-                    Program.requestQueue.Enqueue(receivedData);
+                    int bytes = socket.Receive(socketClient.ReceiveBytes);
+                    if (bytes > 0)
+                    {
+                        string receivedData = Encoding.ASCII.GetString(socketClient.ReceiveBytes, 0, bytes);
+                        Console.WriteLine("received from client :" + receivedData);
+                        Program.requestQueue.Enqueue(receivedData);
+                    }
                 }
+                catch
+                { 
+                    
+                }
+
 
             }
         }
