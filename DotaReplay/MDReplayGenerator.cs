@@ -41,6 +41,7 @@ namespace MetaDota.DotaReplay
         public CMsgDOTAMatch match;
         public string demoFilePath = "";
         public string replayFilePath = "";
+        public string replayResultFilePath = "";
 
         public bool block = false;
         public EReplayGenerateResult eReplayGenerateResult = EReplayGenerateResult.Success;
@@ -107,6 +108,7 @@ namespace MetaDota.DotaReplay
             match = null;
             demoFilePath = Path.Combine(ClientParams.DEMO_DIR, string.Format("{0}.dem", match_id));
             replayFilePath = Path.Combine(ClientParams.REPLAY_DIR, string.Format("{0}_{1}.mp4", match_id, account_id));
+            replayResultFilePath = Path.Combine(ClientParams.REPLAY_DIR, string.Format("{0}_{1}.txt", match_id, account_id));
             //factory task
             mDFactories = new IMDFactory[4] {
                 MDDotaClientRequestor.Instance,
@@ -114,6 +116,7 @@ namespace MetaDota.DotaReplay
                 MDDemoAnalystor.Instance,
                 MDMovieMaker.Instance,
             };
+            File.WriteAllText(replayResultFilePath, EReplayGenerateResult.NotComplet.ToString());
         }
 
         EReplayGenerateResult _GetResult()
@@ -137,29 +140,34 @@ namespace MetaDota.DotaReplay
         async Task<EReplayGenerateResult> _GenerateMatchReplayTask()
         {
 
-            if (MDFile.FileExists(replayFilePath))  return EReplayGenerateResult.Success;
-
-            for (int i = 0; i < mDFactories.Length; i++)
+            if (!MDFile.FileExists(replayFilePath))
             {
-                mDFactories[i].Add(this);
-                while (block)
+                for (int i = 0; i < mDFactories.Length; i++)
                 {
-                    await Task.Delay(2000);
+                    mDFactories[i].Add(this);
+                    while (block)
+                    {
+                        await Task.Delay(2000);
+                    }
+                    if (eReplayGenerateResult != EReplayGenerateResult.Success)
+                    {
+                        break;
+                    }
                 }
-                if (eReplayGenerateResult != EReplayGenerateResult.Success)
-                {
-                    return eReplayGenerateResult;
-                }
-
             }
+
+
+
+            //create result file
+            string result = eReplayGenerateResult.ToString();
+            if (eReplayGenerateResult == EReplayGenerateResult.Success)
+            {
+                result += $"\n{replayFilePath}";
+            }
+            File.WriteAllText(replayResultFilePath, result);
+
             return eReplayGenerateResult;
 
-
-
-
-
-            //MDMovieMaker.Instance.CancelRecording();
-            //await MDMovieMaker.StartRecordMovie();
         }
 
         private bool IsGenerateIdle()

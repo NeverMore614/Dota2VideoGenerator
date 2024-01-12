@@ -19,7 +19,6 @@ namespace MetaDota.DotaReplay
             public int Heartbeat = 0;
             public byte[] ReceiveBytes;
             public Thread Connect;
-            public bool shouldStop = false;
             public SocketClient()
             {
                 ReceiveBytes = new byte[1024];
@@ -31,23 +30,20 @@ namespace MetaDota.DotaReplay
                 Thread thread = new Thread(Working);
                 thread.Start(this);
                 Connect = thread;
-                shouldStop = false;
                 Heartbeat = 10;
             }
 
             public void Close()
             {
                 Console.WriteLine("close connect");
-                shouldStop = true;
                 Socket.Close();
                 Connect.Join();
-                Socket = null;
                 Console.WriteLine("close connect over");
             }
 
             public bool IsIdle()
             {
-                return Socket == null;
+                return Connect == null || !Connect.IsAlive;
             }
         }
 
@@ -65,15 +61,24 @@ namespace MetaDota.DotaReplay
                 socketClients[i] = new SocketClient();
             }
 
-            var host = Dns.GetHostEntry(Dns.GetHostName());
-            foreach (IPAddress iPAddress in host.AddressList)
+            try
             {
-                Console.WriteLine($"{iPAddress}");
-                if (iPAddress.AddressFamily == AddressFamily.InterNetwork)
-                { 
-                    _ip = iPAddress;
+                _ip = IPAddress.Parse(File.ReadAllText("config/ipadress.txt"));
+            }
+            catch
+            {
+                var host = Dns.GetHostEntry(Dns.GetHostName());
+                foreach (IPAddress iPAddress in host.AddressList)
+                {
+                    Console.WriteLine($"{iPAddress}");
+                    if (iPAddress.AddressFamily == AddressFamily.InterNetwork)
+                    {
+                        _ip = iPAddress;
+                    }
                 }
             }
+
+
 
         }
         public void Start()
@@ -98,6 +103,7 @@ namespace MetaDota.DotaReplay
 
                 Thread thread = new Thread(ListenClientConnect);
                 thread.Start();
+
 
                 Thread thread1 = new Thread(HeartbeatCheck);
                 thread1.Start();
@@ -137,38 +143,46 @@ namespace MetaDota.DotaReplay
         {
             SocketClient socketClient = o as SocketClient;
             Socket socket = socketClient.Socket;
-            while (!socketClient.shouldStop)
+            try
             {
-                try
+                int bytes = socket.Receive(socketClient.ReceiveBytes);
+                if (bytes > 0)
                 {
-                    int bytes = socket.Receive(socketClient.ReceiveBytes);
-                    if (bytes > 0)
+                    string receivedData = Encoding.ASCII.GetString(socketClient.ReceiveBytes, 0, bytes);
+                    string[] interfaceAndParam = receivedData.Split('/');
+                    if (interfaceAndParam.Length == 2)
                     {
-                        string receivedData = Encoding.ASCII.GetString(socketClient.ReceiveBytes, 0, bytes);
-          
-                        string[] interfaceAndParam = receivedData.Split('/');
-                        if (interfaceAndParam.Length == 2)
+                        switch (interfaceAndParam[0])
                         {
-                            switch (interfaceAndParam[0])
-                            {
-                                case "heart":
-                                    socketClient.Heartbeat = 10;
-                                    break;
-                                case "match":
-                                    Program.requestQueue.Enqueue(interfaceAndParam[1]);
-                                    break;
-                            }
-                        }
-                        else
-                        {
-                            Console.WriteLine("invalid request :" + receivedData);
+                            case "match":
+                                Program.requestQueue.Enqueue(interfaceAndParam[1]);
+                                socket.Send(Encoding.ASCII.GetBytes("OK"));
+                                break;
+                            case "replay":
+                                string resultFilePath = Path.Combine(ClientParams.REPLAY_DIR, interfaceAndParam[1] + ".txt");
+                                if (File.Exists(resultFilePath))
+                                {
+                                    string[] lines = File.ReadAllLines(resultFilePath);
+                                    socket.Send(Encoding.ASCII.GetBytes(lines[0] + "$" + (lines[1] ?? "")));
+                                }
+                                else
+                                {
+                                    socket.Send(Encoding.ASCII.GetBytes("None"));
+                                }
+                                break;
                         }
                     }
+                    else
+                    {
+                        Console.WriteLine("invalid request :" + receivedData);
+                    }
                 }
-                catch
-                {
-                    socketClient.shouldStop = true;
-                }
+                socket.Close();
+            }
+            catch
+            {
+                
+
             }
         }
 
@@ -183,13 +197,12 @@ namespace MetaDota.DotaReplay
                 for (int i = 0; i < socketClients.Length; i++)
                 {
                     SocketClient socketClient = socketClients[i];
-                    if (socketClient.Socket != null)
+                    if (socketClient.Connect != null && socketClient.Connect.IsAlive)
                     {
                         if (0 > --socketClient.Heartbeat )
                         {
                             socketClient.Close();
                         }
-   
                     }
                 }
             }
