@@ -26,8 +26,7 @@ namespace ConsoleApp2
         {
 #if DEBUG
 
-
-
+     
             //string dotaPath = "E:\\Steam\\steam\\steamapps\\common\\dota 2 beta";
             //await CheckColor();
             string dotaPath = File.ReadAllText("config/dota2Path.txt");
@@ -38,8 +37,6 @@ namespace ConsoleApp2
             MDFile.Init();
 
             MDSever.Instance.Start();
-
-            return;
 
             //movie maker
             MDMovieMaker.Instance.Init();

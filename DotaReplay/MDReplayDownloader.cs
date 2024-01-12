@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Net;
+using System.IO;
 using System.Text;
 using System.Threading.Tasks;
 using SteamKit2.GC.Dota.Internal;
@@ -43,7 +44,7 @@ namespace MetaDota.DotaReplay
                     {
                         try
                         {
-                            await web.DownloadFileTaskAsync(_download_url, tmp);
+                             web.DownloadFileTaskAsync(_download_url, tmp).Wait();
                         }
                         catch (Exception ex)
                         {
