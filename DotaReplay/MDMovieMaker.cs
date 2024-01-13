@@ -26,6 +26,7 @@ namespace MetaDota.DotaReplay
         private string _cfgFilePath = "";
         private string _keyFilePath = "";
 
+        private Dictionary<string, Keys> s2k;
 
         public override async Task Init()
         {
@@ -38,6 +39,21 @@ namespace MetaDota.DotaReplay
                 Console.Write("To Start DirectX Input, please enter any key:");
                 Console.ReadLine();
                 Console.Write("MDMovieMaker Init Success");
+                s2k = new Dictionary<string, Keys>() {
+                {"kp_0",Keys.Numpad0 },
+                {"kp_1",Keys.Numpad1 },
+                {"kp_2",Keys.Numpad2 },
+                {"kp_3",Keys.Numpad3 },
+                {"kp_4",Keys.Numpad4 },
+                {"kp_5",Keys.Numpad5 },
+                {"kp_6",Keys.Numpad6 },
+                {"kp_7",Keys.Numpad7 },
+                {"kp_8",Keys.Numpad8 },
+                {"kp_9",Keys.Numpad9 },
+                {"kp_multiply",Keys.NumpadAsterisk },
+                {"kp_minus",Keys.NumpadMinus },
+                {"kp_plus",Keys.NumpadPlus },
+                };
             }
             catch (Exception e)
             {
@@ -85,7 +101,14 @@ namespace MetaDota.DotaReplay
                         {
                             Task.Delay(500);
                         }
-                        _input.SendText(fileKey[1]);
+                        if (s2k.ContainsKey(fileKey[1]))
+                        {
+                            _input.SendKey(s2k[fileKey[1]]);
+                        }
+                        else
+                        {
+                            _input.SendText(fileKey[1]);
+                        }
                     }
                 }
 
