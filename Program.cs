@@ -31,10 +31,10 @@ namespace ConsoleApp2
 
             MDFile.Init();
 
-            MDSever.Instance.Start();
-
             //movie maker
             MDMovieMaker.Instance.Init();
+
+            MDSever.Instance.Start();
 
             //demo downloader
             MDReplayDownloader.Instance.Init();

@@ -42,12 +42,8 @@ namespace MetaDota.DotaReplay
             }
             if (!driverInstalled)
             {
-                Process process = new Process();
-                process.StartInfo.FileName = "install-interception.exe";
-                process.StartInfo.Arguments = "/install";
-                process.Start();
-                process.WaitForExit();
-                Console.Write("driver install success, you need restart the computer");
+
+                Console.Write("please install driver interception with install-interception.exe  ");
                 Console.ReadLine();
                 Environment.Exit(0);
                 return;
