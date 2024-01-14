@@ -10,7 +10,6 @@
 
   <ItemGroup>
     <PackageReference Include="Dota2" Version="0.11.0" />
-    <PackageReference Include="InputSimulator" Version="1.0.4" />
     <PackageReference Include="SteamKit2" Version="2.5.0" />
   </ItemGroup>
 
@@ -28,6 +27,9 @@
     <None Update="7z.exe">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Update="config\config.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Update="config\serverPort.txt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
@@ -41,6 +43,12 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Update="ffmpeg.exe">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="hfs.exe">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="install-interception.exe">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Update="interception.dll">

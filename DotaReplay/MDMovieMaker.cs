@@ -6,9 +6,6 @@ using System.Text;
 using System.Threading.Tasks;
 using MetaDota.Common.Native;
 using System.Runtime.InteropServices;
-using WindowsInput;
-using WindowsInput.Native;
-using MetaDota.InputSimulation;
 using Interceptor;
 using System.Drawing;
 using static Dota2.GC.Dota.Internal.CMsgGCToClientSocialMatchDetailsResponse;
@@ -31,6 +28,31 @@ namespace MetaDota.DotaReplay
         public override async Task Init()
         {
             base.Init();
+            //check drivers
+            bool driverInstalled = false;
+            DirectoryInfo driverDi = new DirectoryInfo(@"C:\Windows\System32\drivers");
+            FileInfo[] fis = driverDi.GetFiles("*.sys");
+            foreach (FileInfo fi in fis)
+            {
+                if (fi.Name == "keyboard.sys")
+                {
+                    driverInstalled = true;
+                    break;
+                }
+            }
+            if (!driverInstalled)
+            {
+                Process process = new Process();
+                process.StartInfo.FileName = "install-interception.exe";
+                process.StartInfo.Arguments = "/install";
+                process.Start();
+                process.WaitForExit();
+                Console.Write("driver install success, you need restart the computer");
+                Console.ReadLine();
+                Environment.Exit(0);
+                return;
+            }
+
             try
             {
                 _input = new Input();

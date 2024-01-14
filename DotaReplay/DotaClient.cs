@@ -8,7 +8,8 @@ using SteamKit2.Internal; // brings in our protobuf client messages
 using SteamKit2.GC; // brings in the GC related classes
 using SteamKit2.GC.Dota.Internal;
 using System.Collections;
-using MetaDota.Common; // brings in dota specific protobuf messages
+using MetaDota.Common;
+using ConsoleApp2; // brings in dota specific protobuf messages
 
 namespace MetaDota.DotaReplay;
 
@@ -162,13 +163,13 @@ class DotaClient : SingleTon<DotaClient>
         {
             Console.WriteLine("authCode = '{0}' into Steam...", authCode);
         }
-        Console.WriteLine( "Connected! Logging '{0}' into Steam...", ClientParams.STEAM_USERNAME );
+        Console.WriteLine( "Connected! Logging '{0}' into Steam...", Program.config.steamAccount);
 
         // we've successfully connected, so now attempt to logon
         user.LogOn( new SteamUser.LogOnDetails
         {
-            Username = ClientParams.STEAM_USERNAME,
-            Password = ClientParams.STEAM_PASSWORD,
+            Username = Program.config.steamAccount,
+            Password = Program.config.steamPassword,
             // in this sample, we pass in an additional authcode
             // this value will be null (which is the default) for our first logon attempt
             AuthCode = authCode,

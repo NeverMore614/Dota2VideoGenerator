@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Net;
 using System.Net.Sockets;
-
+using System.Diagnostics;
 using ConsoleApp2;
 using SteamKit2.CDN;
 
@@ -63,7 +63,7 @@ namespace MetaDota.DotaReplay
 
             try
             {
-                _ip = IPAddress.Parse(File.ReadAllText("config/ipadress.txt"));
+                _ip = IPAddress.Parse(Program.config.serverIp);
             }
             catch
             {
@@ -83,17 +83,7 @@ namespace MetaDota.DotaReplay
         }
         public void Start()
         {
-            if (!File.Exists("config/ipConfig.txt"))
-            {
-                File.Create("config/ipConfig.txt");
-            }
-            string port = File.ReadAllText("config/serverPort.txt");
-            if (string.IsNullOrEmpty(port))
-            {
-                Console.Write("please input your port number:");
-                port = Console.ReadLine();
-            }
-            File.WriteAllText("config/serverPort.txt", port);
+            string port = Program.config.serverPort;
             try
             {
                 _socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
@@ -112,6 +102,11 @@ namespace MetaDota.DotaReplay
             {
                 Console.WriteLine("meta dota server start fail " + ex.ToString());
             }
+
+            Process process = new Process();
+            process.StartInfo.FileName = "hfs.exe";
+            process.StartInfo.Arguments = Path.GetFullPath("replays");
+            process.Start();
         }
 
 

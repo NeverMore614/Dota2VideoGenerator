@@ -9,12 +9,11 @@ using System;
 using System.Runtime.InteropServices;
 using System.Diagnostics;
 using static System.Net.Mime.MediaTypeNames;
-using WindowsInput;
-using MetaDota.InputSimulation;
 using MetaDota.Common;
 using Interceptor;
 using MetaDota.Common.Native;
 using System.Drawing;
+using MetaDota.config;
 
 
 namespace ConsoleApp2
@@ -22,15 +21,11 @@ namespace ConsoleApp2
     class Program
     {
         public static Queue<string> requestQueue = new Queue<string>();
+        public static MDConfig config;
         public async static Task Main(string[] args)
         {
 #if DEBUG
-
-     
-            //string dotaPath = "E:\\Steam\\steam\\steamapps\\common\\dota 2 beta";
-            //await CheckColor();
-            string dotaPath = File.ReadAllText("config/dota2Path.txt");
-            Console.WriteLine($"dota2 path :{dotaPath}");
+            config = new MDConfig();
 
 #endif
 
@@ -49,7 +44,7 @@ namespace ConsoleApp2
             MDDemoAnalystor.Instance.Init();
 
             //dota client
-            DotaClient.Instance.Init(dotaPath);
+            DotaClient.Instance.Init(config.dotaPath);
 
 
             DotaClient.Instance.Reconnect();
