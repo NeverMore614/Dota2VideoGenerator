@@ -178,6 +178,7 @@ namespace MetaDota.DotaReplay
                     _input.SendKey(Keys.BackslashPipe, KeyState.Down);
                     _input.SendText($"playdemo replays/{generator.match_id}");
                     _input.SendKey(Keys.Enter, KeyState.Down);
+                    await Task.Delay(3000);
                 }).Wait();
             }
 
