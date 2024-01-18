@@ -52,7 +52,7 @@ namespace MetaDota.DotaReplay
                         }
                     }
 
-                    File.Move(tmp, zip);
+                    File.Move(tmp, zip, true);
                     Console.WriteLine("demo download success");
                 }
                 //start unzip demo
@@ -60,6 +60,7 @@ namespace MetaDota.DotaReplay
                 {
                     zipProcess.StartInfo.FileName = "7z.exe";
                     zipProcess.StartInfo.RedirectStandardInput = true;
+                    zipProcess.StartInfo.UseShellExecute = false;
                     zipProcess.StartInfo.Arguments = $"x {zip} -o{ClientParams.DEMO_DIR} -aoa";
                     zipProcess.Start();
                     zipProcess.WaitForExit();

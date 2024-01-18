@@ -23,5 +23,7 @@ namespace MetaDota.Common.Native
         [DllImport("user32.dll")]
         public static extern void SwitchToThisWindow(IntPtr hWnd, bool fAltTab);
 
+        [DllImport("user32.dll")]
+        public static extern bool GetWindowRect(IntPtr hWnd, ref RECT lpRect);
     }
 }

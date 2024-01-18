@@ -17,4 +17,12 @@ namespace MetaDota.Common.Native
             return new Point(point.X, point.Y);
         }
     }
+
+    public struct RECT
+    {
+        public int Left;                             //最左坐标
+        public int Top;                             //最上坐标
+        public int Right;                           //最右坐标
+        public int Bottom;                        //最下坐标
+    }
 }

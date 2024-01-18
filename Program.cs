@@ -14,6 +14,7 @@ using Interceptor;
 using MetaDota.Common.Native;
 using System.Drawing;
 using MetaDota.config;
+using static SteamKit2.GC.Dota.Internal.CDOTAMatchMetadata;
 
 
 namespace ConsoleApp2
@@ -24,13 +25,9 @@ namespace ConsoleApp2
         public static MDConfig config;
         public async static Task Main(string[] args)
         {
-#if DEBUG
             config = new MDConfig();
 
-#endif
-
             MDFile.Init();
-            return;
 
             //movie maker
             MDMovieMaker.Instance.Init();

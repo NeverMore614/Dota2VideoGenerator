@@ -103,10 +103,10 @@ namespace MetaDota.DotaReplay
                 Console.WriteLine("meta dota server start fail " + ex.ToString());
             }
 
-            Process process = new Process();
-            process.StartInfo.FileName = "hfs.exe";
-            process.StartInfo.Arguments = Path.GetFullPath("replays");
-            process.Start();
+            //Process process = new Process();
+            //process.StartInfo.FileName = "hfs.exe";
+            //process.StartInfo.Arguments = Path.GetFullPath("replays");
+            //process.Start();
         }
 
 

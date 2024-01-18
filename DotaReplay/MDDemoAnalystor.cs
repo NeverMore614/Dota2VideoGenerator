@@ -51,6 +51,7 @@ namespace MetaDota.DotaReplay
             using (Process demoP = new Process())
             {
                 demoP.StartInfo.FileName = "demo.exe";
+                demoP.StartInfo.UseShellExecute = false;
                 demoP.StartInfo.RedirectStandardInput = true;
                 demoP.StartInfo.Arguments = $"{demoFilePath} {hero_name} {slot} {war_fog}";
                 demoP.Start();
