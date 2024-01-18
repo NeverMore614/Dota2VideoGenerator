@@ -87,17 +87,10 @@ namespace MetaDota.DotaReplay
             _keyFilePath = Path.Combine(ClientParams.REPLAY_CFG_DIR, "keyCfg.txt");
             if (CancelRecording(generator))
             {
-                await Task.Delay(3000);
-
-                while (Process.GetProcessesByName("dota2").Length == 0)
-                {
-                    await Task.Delay(500);
-                }
                 RECT rECT = new RECT();
-                if (!NativeMethods.GetWindowRect(Process.GetProcessesByName("dota2")[0].MainWindowHandle, ref rECT))
+                while (!NativeMethods.GetWindowRect(Process.GetProcessesByName("dota2")[0].MainWindowHandle, ref rECT))
                 {
-                    generator.eReplayGenerateResult = MDReplayGenerator.EReplayGenerateResult.LaunchDotaFail;
-                    return;
+                    await Task.Delay(1000);
                 }
                 int centerX = rECT.Left + (rECT.Right - rECT.Left) / 2;
                 int centerY = rECT.Top + (rECT.Bottom - rECT.Top) / 2;
@@ -131,7 +124,7 @@ namespace MetaDota.DotaReplay
                         clipFile = Path.Combine(DotaClient.dotaMoviePath, fileKey[0]);
                         while (!File.Exists(clipFile))
                         {
-                            Task.Delay(500);
+                            await Task.Delay(500);
                         }
                         if (s2k.ContainsKey(fileKey[1]))
                         {

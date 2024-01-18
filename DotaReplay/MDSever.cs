@@ -180,7 +180,7 @@ namespace MetaDota.DotaReplay
                                 if (File.Exists(resultFilePath))
                                 {
                                     string[] lines = File.ReadAllLines(resultFilePath);
-                                    result = lines[0] + "$" + (lines[1] ?? "");
+                                    result = lines[0] + "$" + (lines.Length > 1 ? lines[1] : "");
                                 }
                                 else
                                 {
