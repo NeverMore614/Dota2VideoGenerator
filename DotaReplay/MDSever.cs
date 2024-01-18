@@ -17,11 +17,10 @@ namespace MetaDota.DotaReplay
         {
             public Socket Socket;
             public int Heartbeat = 0;
-            public byte[] ReceiveBytes;
             public Thread Connect;
             public SocketClient()
             {
-                ReceiveBytes = new byte[1024];
+
             }
 
             public void Accept(Socket socket)
@@ -103,10 +102,13 @@ namespace MetaDota.DotaReplay
                 Console.WriteLine("meta dota server start fail " + ex.ToString());
             }
 
-            //Process process = new Process();
-            //process.StartInfo.FileName = "hfs.exe";
-            //process.StartInfo.Arguments = Path.GetFullPath("replays");
-            //process.Start();
+            if (Process.GetProcessesByName("hfs").Length == 0)
+            {
+                Process process = new Process();
+                process.StartInfo.FileName = "hfs.exe";
+                process.StartInfo.Arguments = Path.GetFullPath("replays");
+                process.Start();
+            }
         }
 
 
@@ -138,47 +140,68 @@ namespace MetaDota.DotaReplay
         {
             SocketClient socketClient = o as SocketClient;
             Socket socket = socketClient.Socket;
+            byte[] ReceiveBytes = new byte[1024];
+            string result = "";
             try
             {
-                int bytes = socket.Receive(socketClient.ReceiveBytes);
+                int bytes = socket.Receive(ReceiveBytes);
                 if (bytes > 0)
                 {
-                    string receivedData = Encoding.ASCII.GetString(socketClient.ReceiveBytes, 0, bytes);
+                    string receivedData = Encoding.ASCII.GetString(ReceiveBytes, 0, bytes);
                     string[] interfaceAndParam = receivedData.Split('/');
                     if (interfaceAndParam.Length == 2)
                     {
                         switch (interfaceAndParam[0])
                         {
                             case "match":
-                                Program.requestQueue.Enqueue(interfaceAndParam[1]);
-                                socket.Send(Encoding.ASCII.GetBytes("OK"));
+                                bool match = false;
+                                foreach (string s in Program.requestQueue)
+                                {
+                                    if (s.Equals(interfaceAndParam[1]))
+                                    {
+                                        match = true;
+                                        break;
+                                        
+                                    }
+                                }
+                                if (match)
+                                {
+                                    result = "Has Task";
+                                    
+                                }
+                                else
+                                {
+                                    Program.requestQueue.Enqueue(interfaceAndParam[1]);
+                                    result = "OK";
+                                }
                                 break;
                             case "replay":
                                 string resultFilePath = Path.Combine(ClientParams.REPLAY_DIR, interfaceAndParam[1] + ".txt");
                                 if (File.Exists(resultFilePath))
                                 {
                                     string[] lines = File.ReadAllLines(resultFilePath);
-                                    socket.Send(Encoding.ASCII.GetBytes(lines[0] + "$" + (lines[1] ?? "")));
+                                    result = lines[0] + "$" + (lines[1] ?? "");
                                 }
                                 else
                                 {
-                                    socket.Send(Encoding.ASCII.GetBytes("None"));
+                                    result = "None";
                                 }
                                 break;
                         }
                     }
                     else
                     {
+                        result = "invalid request :" + receivedData;
                         Console.WriteLine("invalid request :" + receivedData);
                     }
                 }
-                socket.Close();
             }
             catch
             {
-                
-
+                result = "Error";
             }
+            socket.Send(Encoding.ASCII.GetBytes(result));
+            socket.Close();
         }
 
 
