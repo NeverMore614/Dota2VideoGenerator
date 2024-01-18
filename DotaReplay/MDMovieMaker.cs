@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using MetaDota.Common.Native;
+using System.Windows.Forms;
 using System.Runtime.InteropServices;
 using Interceptor;
 using System.Drawing;
@@ -23,7 +24,7 @@ namespace MetaDota.DotaReplay
         private string _cfgFilePath = "";
         private string _keyFilePath = "";
 
-        private Dictionary<string, Keys> s2k;
+        private Dictionary<string, Interceptor.Keys> s2k;
 
         public override async Task Init()
         {
@@ -57,20 +58,20 @@ namespace MetaDota.DotaReplay
                 Console.Write("To Start DirectX Input, please enter any key:");
                 Console.ReadLine();
                 Console.Write("MDMovieMaker Init Success");
-                s2k = new Dictionary<string, Keys>() {
-                {"kp_0",Keys.Numpad0 },
-                {"kp_1",Keys.Numpad1 },
-                {"kp_2",Keys.Numpad2 },
-                {"kp_3",Keys.Numpad3 },
-                {"kp_4",Keys.Numpad4 },
-                {"kp_5",Keys.Numpad5 },
-                {"kp_6",Keys.Numpad6 },
-                {"kp_7",Keys.Numpad7 },
-                {"kp_8",Keys.Numpad8 },
-                {"kp_9",Keys.Numpad9 },
-                {"kp_multiply",Keys.NumpadAsterisk },
-                {"kp_minus",Keys.NumpadMinus },
-                {"kp_plus",Keys.NumpadPlus },
+                s2k = new Dictionary<string, Interceptor.Keys>() {
+                {"kp_0",Interceptor.Keys.Numpad0 },
+                {"kp_1",Interceptor.Keys.Numpad1 },
+                {"kp_2",Interceptor.Keys.Numpad2 },
+                {"kp_3",Interceptor.Keys.Numpad3 },
+                {"kp_4",Interceptor.Keys.Numpad4 },
+                {"kp_5",Interceptor.Keys.Numpad5 },
+                {"kp_6",Interceptor.Keys.Numpad6 },
+                {"kp_7",Interceptor.Keys.Numpad7 },
+                {"kp_8",Interceptor.Keys.Numpad8 },
+                {"kp_9",Interceptor.Keys.Numpad9 },
+                {"kp_multiply",Interceptor.Keys.NumpadAsterisk },
+                {"kp_minus",Interceptor.Keys.NumpadMinus },
+                {"kp_plus",Interceptor.Keys.NumpadPlus },
                 };
             }
             catch (Exception e)
@@ -106,7 +107,7 @@ namespace MetaDota.DotaReplay
                     pixelColor = MDTools.GetPixelColor(131, 77);
                 }
                 _input.SendText("exec replayCfg.txt");
-                _input.SendKey(Keys.Enter, KeyState.Down);
+                _input.SendKey(Interceptor.Keys.Enter, KeyState.Down);
                 string[] keyLines = File.ReadAllLines(_keyFilePath);
                 string clipFile = "";
                 for (int i = 0; i < keyLines.Length; i++)
@@ -175,9 +176,9 @@ namespace MetaDota.DotaReplay
                 Task.Run(async () =>
                 {
                     await Task.Delay(3000);
-                    _input.SendKey(Keys.BackslashPipe, KeyState.Down);
+                    _input.SendKey(Interceptor.Keys.BackslashPipe, KeyState.Down);
                     _input.SendText($"playdemo replays/{generator.match_id}");
-                    _input.SendKey(Keys.Enter, KeyState.Down);
+                    _input.SendKey(Interceptor.Keys.Enter, KeyState.Down);
                     await Task.Delay(3000);
                 }).Wait();
             }

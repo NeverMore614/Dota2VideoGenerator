@@ -52,7 +52,7 @@ namespace MetaDota.DotaReplay
                         }
                     }
 
-                    File.Move(tmp, zip, true);
+                    File.Move(tmp, zip);
                     Console.WriteLine("demo download success");
                 }
                 //start unzip demo

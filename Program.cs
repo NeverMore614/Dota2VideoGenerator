@@ -30,6 +30,7 @@ namespace ConsoleApp2
 #endif
 
             MDFile.Init();
+            return;
 
             //movie maker
             MDMovieMaker.Instance.Init();
