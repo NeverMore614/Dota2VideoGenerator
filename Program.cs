@@ -23,6 +23,25 @@ namespace ConsoleApp2
     {
         public static Queue<string> requestQueue = new Queue<string>();
         public static MDConfig config;
+
+        static void test()
+        {
+            Console.ReadLine();
+            Console.WriteLine("delete movie file ing ...");
+            foreach (String file in Directory.GetFiles(DotaClient.dotaMoviePath))
+            {
+                File.Delete(file);
+            }
+            Console.WriteLine("delete movie file ing over");
+            
+            NativeMethods.SwitchToThisWindow(Process.GetProcessesByName("dota2")[0].MainWindowHandle, true);
+            Console.WriteLine("aaaa");
+            Task.Run(async () =>
+            {
+                await Task.Delay(3000);
+                Console.WriteLine("asdasdsa");
+            }).Wait();
+        }
         public async static Task Main(string[] args)
         {
             config = new MDConfig();
@@ -33,6 +52,10 @@ namespace ConsoleApp2
             MDMovieMaker.Instance.Init();
 
             MDSever.Instance.Start();
+
+            //DotaClient.Instance.Init(config.dotaPath);
+            //test();
+            //return;
 
             //demo downloader
             MDReplayDownloader.Instance.Init();

@@ -106,7 +106,8 @@ namespace MetaDota.DotaReplay
                 while (sameCount > 0)
                 {
                     Color curColor = MDTools.GetPixelColor(centerX, centerY);
-                    if (curColor.ToArgb != pixelColor.ToArgb)
+                    Console.WriteLine($"{curColor.ToArgb()} {centerX} {centerY}");
+                    if (curColor.ToArgb() != pixelColor.ToArgb())
                     {
                         pixelColor = curColor;
                         sameCount--;
@@ -116,8 +117,10 @@ namespace MetaDota.DotaReplay
                 string[] keyLines = File.ReadAllLines(_keyFilePath);
                 //check is in demo
                 _input.SendKey(Interceptor.Keys.BackslashPipe, KeyState.Down);
+                _input.SendKey(Interceptor.Keys.BackslashPipe, KeyState.Up);
                 _input.SendText("exec replayCfg.txt");
                 _input.SendKey(Interceptor.Keys.Enter, KeyState.Down);
+                _input.SendKey(Interceptor.Keys.Enter, KeyState.Up);
 
                 string clipFile = "";
                 for (int i = 0; i < keyLines.Length; i++)
@@ -202,8 +205,10 @@ namespace MetaDota.DotaReplay
                 {
                     await Task.Delay(3000);
                     _input.SendKey(Interceptor.Keys.BackslashPipe, KeyState.Down);
+                    _input.SendKey(Interceptor.Keys.BackslashPipe, KeyState.Up);
                     _input.SendText($"exec autoexec.cfg");
                     _input.SendKey(Interceptor.Keys.Enter, KeyState.Down);
+                    _input.SendKey(Interceptor.Keys.Enter, KeyState.Up);
                     await Task.Delay(3000);
                 }).Wait();
             }
