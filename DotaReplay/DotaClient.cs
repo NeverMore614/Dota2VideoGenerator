@@ -4,6 +4,7 @@ using System.Threading;
 using System.Text;
 
 using SteamKit2;
+using SteamKit2.Authentication;
 using SteamKit2.Internal; // brings in our protobuf client messages
 using SteamKit2.GC; // brings in the GC related classes
 using SteamKit2.GC.Dota.Internal;
@@ -49,6 +50,8 @@ class DotaClient : SingleTon<DotaClient>
 
     public bool IsInit = false;
 
+    string previouslyStoredGuardData = null;
+
     public DotaClient()
     {
         _init_hero_json();
@@ -74,9 +77,7 @@ class DotaClient : SingleTon<DotaClient>
                 { ( uint )EGCBaseClientMsg.k_EMsgGCClientWelcome, OnClientWelcome },
                 { ( uint )EDOTAGCMsg.k_EMsgGCMatchDetailsResponse, OnMatchDetails },
             };
-          
-        //authCode = "";
-        //MDFile.ReadLine("auth.txt", ref authCode);
+
     }
 
     /// <summary>
@@ -90,6 +91,8 @@ class DotaClient : SingleTon<DotaClient>
         dotaMoviePath = Path.Combine(dotaPath, dotaMoviePath);
         dotaCfgPath = Path.Combine(dotaPath, dotaCfgPath);
         dotaReplayPath = Path.Combine(dotaPath, dotaReplayPath);
+        previouslyStoredGuardData = Program.config.GetAuthGuardData();
+        Console.WriteLine("your previouslyStoredGuardData is" + previouslyStoredGuardData);
     }
 
     void _init_hero_json()
@@ -157,26 +160,56 @@ class DotaClient : SingleTon<DotaClient>
     }
 
     // called when the client successfully (or unsuccessfully) connects to steam
-    void OnConnected( SteamClient.ConnectedCallback callback )
+    async void OnConnected( SteamClient.ConnectedCallback callback )
     {
-        if (authCode != null)
-        {
-            Console.WriteLine("authCode = '{0}' into Steam...", authCode);
-        }
         Console.WriteLine( "Connected! Logging '{0}' into Steam...", Program.config.steamAccount);
+
+
+
+
+
+        var shouldRememberPassword = false;
+
+        // Begin authenticating via credentials
+        var authSession = await client.Authentication.BeginAuthSessionViaCredentialsAsync(new AuthSessionDetails
+        {
+            Username = Program.config.steamAccount,
+            Password = Program.config.steamPassword,
+            IsPersistentSession = shouldRememberPassword,
+
+            // See NewGuardData comment below
+            GuardData = previouslyStoredGuardData,
+
+            /// <see cref="UserConsoleAuthenticator"/> is the default authenticator implemention provided by SteamKit
+            /// for ease of use which blocks the thread and asks for user input to enter the code.
+            /// However, if you require special handling (e.g. you have the TOTP secret and can generate codes on the fly),
+            /// you can implement your own <see cref="SteamKit2.Authentication.IAuthenticator"/>.
+            Authenticator = new UserConsoleAuthenticator(),
+        });
+        // Starting polling Steam for authentication response
+        var pollResponse = await authSession.PollingWaitForResultAsync();
+
+        if (pollResponse.NewGuardData != null)
+        {
+            // When using certain two factor methods (such as email 2fa), guard data may be provided by Steam
+            // for use in future authentication sessions to avoid triggering 2FA again (this works similarly to the old sentry file system).
+            // Do note that this guard data is also a JWT token and has an expiration date.
+            previouslyStoredGuardData = pollResponse.NewGuardData;
+            Program.config.SaveAuthGuardData(previouslyStoredGuardData);
+        }
+
+        Console.WriteLine($"AccessName = {pollResponse.AccountName}");
+        Console.WriteLine($"AccessToken = {pollResponse.AccessToken}");
+
+
 
         // we've successfully connected, so now attempt to logon
         user.LogOn( new SteamUser.LogOnDetails
         {
-            Username = Program.config.steamAccount,
-            Password = Program.config.steamPassword,
-            // in this sample, we pass in an additional authcode
-            // this value will be null (which is the default) for our first logon attempt
-            AuthCode = authCode,
+            Username = pollResponse.AccountName,
+            AccessToken = pollResponse.RefreshToken,
 
-            // if the account is using 2-factor auth, we'll provide the two factor code instead
-            // this will also be null on our first logon attempt
-            TwoFactorCode = twoFactorAuth,
+            ShouldRememberPassword = shouldRememberPassword
         } );
     }
 

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Newtonsoft.Json.Linq;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -14,6 +15,7 @@ namespace MetaDota.config
         public string serverIp = "";
         public string serverPort = "";
 
+        private string _authGuardData = null;
         public MDConfig() {
             string value = "";
             string fieldPath = "";
@@ -33,6 +35,25 @@ namespace MetaDota.config
                 }
                 field.SetValue(this, value);
             }
+            fieldPath = $"config/authGuardData.txt";
+            if (File.Exists(fieldPath))
+            {
+                _authGuardData = File.ReadAllText(fieldPath);
+                if (string.IsNullOrEmpty(_authGuardData))
+                    _authGuardData = null;
+            }
+        }
+
+        public string GetAuthGuardData()
+        {
+            return _authGuardData;
+        }
+
+        public void SaveAuthGuardData(string data)
+        {
+            _authGuardData = data;
+            string fieldPath = $"config/authGuardData.txt";
+            File.WriteAllText(fieldPath, _authGuardData);
         }
     }
 }
