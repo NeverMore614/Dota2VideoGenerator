@@ -50,9 +50,8 @@ namespace ConsoleApp2
 
             //dota client
             DotaClient.Instance.Init(config.dotaPath);
-
-
             DotaClient.Instance.Reconnect();
+
             if (!DotaClient.Instance.IsLogonDota)
             { 
                 Console.WriteLine("dota2 launch fail");

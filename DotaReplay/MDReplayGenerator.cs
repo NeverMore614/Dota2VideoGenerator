@@ -101,6 +101,9 @@ namespace MetaDota.DotaReplay
             return true;
         }
 
+        /// <summary>
+        /// ************Core code : add task factory*****************
+        /// </summary>
         void _prepareTask()
         {
             block = true;
@@ -111,9 +114,21 @@ namespace MetaDota.DotaReplay
             replayResultFilePath = Path.Combine(ClientParams.REPLAY_DIR, string.Format("{0}_{1}.txt", match_id, account_id));
             //factory task
             mDFactories = new IMDFactory[4] {
+
+                //step 1:get download Url and match info
+                //第一步：拿到比赛信息和下载地址
                 MDDotaClientRequestor.Instance,
+
+                //step 2:download .dem file
+                //第二步：下载录像.dem文件
                 MDReplayDownloader.Instance,
+
+                //step 3:analysis .dem file and generate dota2 command lines:replayCfg/replayCfg.txt, replayCfg/keyCfg.txt
+                //第三步：分析.dem文件，生成录像指令 replayCfg/replayCfg.txt, replayCfg/keyCfg.txt
                 MDDemoAnalystor.Instance,
+
+                //step 4:open dota2 client and record movie with command line
+                //第四步：打开dota2录像，并开始录屏
                 MDMovieMaker.Instance,
             };
             File.WriteAllText(replayResultFilePath, EReplayGenerateResult.NotComplet.ToString());
