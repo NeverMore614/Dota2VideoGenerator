@@ -32,6 +32,7 @@ namespace ConsoleApp2
         {
             config = new MDConfig();
 
+            MDTools.SleepCtr(true);
 
 
             MDFile.Init();

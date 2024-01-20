@@ -25,5 +25,7 @@ namespace MetaDota.Common.Native
 
         [DllImport("user32.dll")]
         public static extern bool GetWindowRect(IntPtr hWnd, ref RECT lpRect);
+        [DllImport("kernel32.dll")]
+        public static extern uint SetThreadExecutionState(uint esFlags);
     }
 }

@@ -44,4 +44,26 @@ public class MDTools
         return (int)Math.Floor(s + (d - s) * t);
     }
 
+    const uint ES_SYSTEM_REQUIRED = 0x00000001;
+    const uint ES_DISPLAY_REQUIRED = 0x00000002;
+    const uint ES_CONTINUOUS = 0x80000000;
+
+    /// <summary>
+    /// stop pc sleep
+    /// </summary>
+    /// <param name="sleepOrNot"></param>
+    public static void SleepCtr(bool sleepOrNot)
+    {
+        if (sleepOrNot)
+        {
+            //阻止休眠时调用
+            NativeMethods.SetThreadExecutionState(ES_CONTINUOUS | ES_DISPLAY_REQUIRED | ES_SYSTEM_REQUIRED);
+        }
+        else
+        {
+            //恢复休眠时调用
+            NativeMethods.SetThreadExecutionState(ES_CONTINUOUS);
+        }
+    }
+
 }
