@@ -11,10 +11,11 @@
 - 局域网环境（家里有wifi）或者静态ip地址（外网环境访问）
 ### 电脑端部署说明
 - 解压MetaDota.zip压缩包，放到任意目录下
-- 第一步需要安装模拟键盘的驱动，用于程序模拟游戏中键盘按下操作，以管理员身份打开命令提示符，输入"{MetaDota安装路径}\install-interception.exe /install",回车安装，安装成功后请重启电脑
+- 第一步需要安装模拟键盘的驱动，用于程序模拟游戏中键盘按下操作，以管理员身份打开命令提示符，输入"{MetaDota安装路径}\install-interception.exe /install",回车安装，安装成功后请重启电脑，如下图所示
 ![](/img/shot1.PNG "")
 - 双击打开MetaDota.exe，第一次打开需要依次填写以下信息
   
-**1.dota 2 beta路径(steam右键dota2 ->属性->本地文件 查看)<br>2.您的steam账号<br>3.您的steam账号密码<br>4.局域网ip地址<br>5.端口号(随便输入，不是已存在的端口号就行，我自己用的8885)**
+     **1.dota 2 beta路径(steam右键dota2 ->属性->本地文件 查看)<br>2.您的steam账号<br>3.您的steam账号密码<br>4.局域网ip地址，打开命令行输入ipconfig即可查看<br>5.端口号(随便输入，不是已存在的端口号就行，我自己用的8885)**
 
-![](/img/shot2.PNG "")
+     ![](/img/shot2.PNG "")
+- 激活模拟驱动，随便输入一个字母，回车即可<br>     ![](/img/shot2.PNG "")
