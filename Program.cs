@@ -30,12 +30,14 @@ namespace ConsoleApp2
         }
         public async static Task Main(string[] args)
         {
+
+
+            MDFile.Init();
             config = new MDConfig();
 
             MDTools.SleepCtr(true);
 
 
-            MDFile.Init();
 
             //movie maker
             MDMovieMaker.Instance.Init();
