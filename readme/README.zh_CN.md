@@ -1,4 +1,5 @@
 ## Dota2击杀集锦生成器使用说明
+### 不想看文字也可以看B站视频步骤[B站链接](https://www.bilibili.com/video/BV1BT4y187eq/?vd_source=7da6118352e7e18a0e6854295c45b116 "")
 ### 您需要下载
 - 电脑端生成工具+服务器：MetaDota.zip
 - 安卓手机端应用：MetaDota.apk
