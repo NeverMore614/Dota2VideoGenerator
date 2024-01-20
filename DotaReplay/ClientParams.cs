@@ -17,5 +17,6 @@ namespace MetaDota.DotaReplay
         public const string REPLAY_DIR = "replays";
         public const string DEMO_DIR = "demos";
         public const string REPLAY_CFG_DIR = "replayCfg";
+        public const string CONFIG_DIR = "config";
     }
 }

@@ -25,6 +25,10 @@ namespace MetaDota.Common
             {
                 Directory.CreateDirectory(ClientParams.REPLAY_CFG_DIR);
             }
+            if (!Directory.Exists(ClientParams.CONFIG_DIR))
+            {
+                Directory.CreateDirectory(ClientParams.CONFIG_DIR);
+            }
         }
         public static string ReadLine(string path, ref string result)
         {

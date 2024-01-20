@@ -92,7 +92,6 @@ class DotaClient : SingleTon<DotaClient>
         dotaCfgPath = Path.Combine(dotaPath, dotaCfgPath);
         dotaReplayPath = Path.Combine(dotaPath, dotaReplayPath);
         previouslyStoredGuardData = Program.config.GetAuthGuardData();
-        Console.WriteLine("your previouslyStoredGuardData is" + previouslyStoredGuardData);
     }
 
     void _init_hero_json()
@@ -199,7 +198,6 @@ class DotaClient : SingleTon<DotaClient>
         }
 
         Console.WriteLine($"AccessName = {pollResponse.AccountName}");
-        Console.WriteLine($"AccessToken = {pollResponse.AccessToken}");
 
 
 

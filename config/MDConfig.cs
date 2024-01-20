@@ -30,7 +30,14 @@ namespace MetaDota.config
                 while (value == "")
                 {
                     Console.WriteLine($"please enter your {field.Name}");
-                    value = Console.ReadLine();
+                    if (field.Name == "steamPassword")
+                    {
+                        value = MDTools.ReadPassword();
+                    }
+                    else
+                    {
+                        value = Console.ReadLine();
+                    }
                     File.WriteAllText(fieldPath, value);
                 }
                 field.SetValue(this, value);
