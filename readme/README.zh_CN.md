@@ -12,4 +12,4 @@
 ### 电脑端部署说明
 - 解压MetaDota.zip压缩包，放到任意目录下
 - 第一步需要安装模拟键盘的驱动，用于程序模拟游戏中键盘按下操作，以管理员身份打开命令提示符，输入"{MetaDota安装路径}/install-interception.exe /install",回车安装，安装成功后请重启电脑
-[不开启alphatest](/Img/furry1.PNG "")
+[不开启alphatest](/Img/shot1.PNG "")
