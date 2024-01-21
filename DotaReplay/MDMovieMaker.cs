@@ -14,6 +14,8 @@ using static SteamKit2.Internal.CContentBuilder_CommitAppBuild_Request;
 using SteamKit2;
 using static SteamKit2.GC.Dota.Internal.CDOTAMatchMetadata;
 using System.Numerics;
+using MetaDota.config;
+using ConsoleApp2;
 
 namespace MetaDota.DotaReplay
 {
@@ -111,6 +113,8 @@ namespace MetaDota.DotaReplay
                 //check is in demo
                 _input.SendKey(Interceptor.Keys.BackslashPipe, KeyState.Down);
                 _input.SendKey(Interceptor.Keys.BackslashPipe, KeyState.Up);
+                await Task.Delay(1500);
+                _input.KeyPressDelay = Program.config.GetKeyInputDelay();
                 _input.SendText("exec replayCfg.txt");
                 _input.SendKey(Interceptor.Keys.Enter, KeyState.Down);
                 _input.SendKey(Interceptor.Keys.Enter, KeyState.Up);
@@ -199,6 +203,8 @@ namespace MetaDota.DotaReplay
                     await Task.Delay(3000);
                     _input.SendKey(Interceptor.Keys.BackslashPipe, KeyState.Down);
                     _input.SendKey(Interceptor.Keys.BackslashPipe, KeyState.Up);
+                    await Task.Delay(1500);
+                    _input.KeyPressDelay = Program.config.GetKeyInputDelay();
                     _input.SendText($"exec autoexec.cfg");
                     _input.SendKey(Interceptor.Keys.Enter, KeyState.Down);
                     _input.SendKey(Interceptor.Keys.Enter, KeyState.Up);

@@ -37,8 +37,6 @@ namespace ConsoleApp2
 
             MDTools.SleepCtr(true);
 
-
-
             //movie maker
             MDMovieMaker.Instance.Init();
 

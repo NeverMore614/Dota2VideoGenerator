@@ -15,6 +15,7 @@ namespace MetaDota.config
         public string serverIp = "";
         public string serverPort = "";
 
+        private int _keyInputDelay = 500;
         private string _authGuardData = null;
         public MDConfig() {
             string value = "";
@@ -49,7 +50,21 @@ namespace MetaDota.config
                 if (string.IsNullOrEmpty(_authGuardData))
                     _authGuardData = null;
             }
+            fieldPath = $"config/keyInputDelay.txt";
+            if (File.Exists(fieldPath))
+            {
+                try {
+                    string delay = File.ReadAllText(fieldPath);
+                    if (!string.IsNullOrEmpty(_authGuardData))
+                        _keyInputDelay = int.Parse(delay);
+                }
+                catch (Exception ex) { }
+
+            }
         }
+
+        public int GetKeyInputDelay()
+        { return _keyInputDelay; }
 
         public string GetAuthGuardData()
         {
