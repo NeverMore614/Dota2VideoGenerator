@@ -1,37 +1,35 @@
-## Dota2击杀集锦生成器使用说明
-### 不想看文字也可以看B站视频步骤[B站链接](https://www.bilibili.com/video/BV1QK411a73b/ "")
-### 您需要下载
-- 电脑端生成工具+服务器：MetaDota.zip
-- 安卓手机端应用：MetaDota.apk
-### 您需要准备
-- windows7及以上操作系统 （必须）
-- dota2客户端 （必须）
-- 带有验证方式（邮箱或双端）的steam账号，不带貌似也行 （必须）
-- 科学上网vpn工具 （必须）
-- 安卓设备手机（必须）
-- 局域网环境（家里有wifi）或者静态ip地址（外网环境访问）
-### 电脑端初次启动部署说明
-- 1.解压MetaDota.zip压缩包，放到任意目录下
-- 2.第一步需要安装模拟键盘的驱动，用于程序模拟游戏中键盘按下操作，以管理员身份打开命令提示符，输入"{MetaDota安装路径}\install-interception.exe /install",回车安装，安装成功后请重启电脑，如下图所示
+## Dota2 Kill Highlights Generator Instructions for Use
+### you need to download
+- PC generation tool + server：MetaDota.zip
+- Android mobile application：MetaDota.apk
+### you need to prepare
+- windows 7 and above operating system (required)
+- dota2 client (required)
+- Steam account with verification method (email or double-ended), it seems ok without it (required)
+- Android device mobile phone (not necessary)
+- network
+### Deployment instructions for initial startup on the computer
+- 1.Unzip the MetaDota.zip compressed package and place it in any directory
+- 2.The first step is to install the simulated keyboard driver, which is used to simulate the keyboard pressing operation in the game. Open the command prompt as an administrator, enter "{MetaDota installation path}\install-interception.exe /install", and press Enter to install , please restart the computer after successful installation, as shown in the figure below
 ![](/img/shot1.PNG "")
-- 3.如果steam已启动并登录了我们准备好的steam账号，请务必关闭掉steam，不然无法登陆哦
-- 4.打开VPN
-- 5.双击打开MetaDota.exe，第一次打开需要依次填写以下信息
+- 3.If steam has been started and you have logged in to the steam account we prepared, be sure to close steam, otherwise you will not be able to log in.
+- 4.Double-click to open MetaDota.exe. When opening it for the first time, you need to fill in the following information in order.
   
-     **1.dota 2 beta路径(steam右键dota2 ->属性->本地文件 查看)<br>2.您的steam账号<br>3.您的steam账号密码<br>4.局域网ip地址，打开命令行输入ipconfig即可查看<br>5.端口号(随便输入，不是已存在的端口号就行，我自己用的8885)**
+     **1.dota 2 beta path(Right click on dota2 on steam ->Properties->Local file view)<br>2.your steam account<br>3.Your steam account password<br>4.LAN IP address, open the command line and enter ipconfig to view<br>5.Port number (enter it casually, as long as it is not an existing port number. I use 8885 myself)**
 
      ![](/img/shot2.PNG "")
-- 6.激活模拟驱动，随便输入一个字母，回车即可<br>     ![](/img/shot3.PNG "")
-- 7.这时候会打开hfs，点击第一个Real folder即可<br>     ![](/img/shot6.PNG "")
-- 8.这时候steam会去验证您的账号，如果是邮箱验证，请拿到验证码，然后复制进去回车即可（忽略掉"waitlogin"额...）<br>     ![](/img/shot4.PNG "")
-- 9.等待链接steam网络，出现如下图提示即为启动成功啦<br>     ![](/img/shot5.PNG "")
-- 以上操作只是初次启动需要的哦，之后启动只需要3、4、6这三个步骤就行，如果发现填写的信息有误，可以到{MetaDota路径}/config下面的配置文件修改哦
-- 默认按键输入间隔为500，是为了防止客户端卡顿导致模拟输入失败，可以在{MetaDota路径}/config/keyInputDelay.txt修改输入间隔
-### 注意事项
-- 打开Dota2客户端录屏期间请勿在电脑上做任何操作，可能会打断录像流程
-- 如果觉得录制视频太慢，可进入dota2视频设置降低分辨率
-### 手机应用端使用说明
-- 1.安装MetaDota.apk，打开
-- 2.进入右上角设置界面，第一行输入电脑配置好的ip地址和端口号，第二行输入hfs的ip地址和端口号，如下图所示，所以应该输入192.168.100.123和80<br>     ![](/img/shot6.PNG "")
-- 3.下方输入请求的比赛id和自己的玩家id，点击生成
-- 4.去洗个澡，等待视频生成完毕
+- 6.Activate the simulation driver, enter any letter and press Enter<br>     ![](/img/shot3.PNG "")
+- 7.At this time, hfs will open and click on the first Real folder.<br>     ![](/img/shot6.PNG "")
+- 8.At this time, steam will verify your account. If it is email verification, please get the verification code, then copy it and press Enter.（Ignore "waitlogin" uh...）<br>     ![](/img/shot4.PNG "")
+- 9.Wait for the connection to the steam network. When the following prompt appears, the startup is successful.<br>     ![](/img/shot5.PNG "")
+- The above operations are only required for the first startup. If you find that the filled-in information is incorrect, you can modify the configuration file under {MetaDota path}/config.
+- The default key input interval is 500, which is to prevent the client from lagging and causing simulated input failure. You can modify the input interval in {MetaDota path}/config/keyInputDelay.txt
+### Precautions
+- Please do not do any operations on the computer while the Dota2 client is open to record the screen, as it may interrupt the recording process.
+- If you feel that recording video is too slow, you can enter the dota2 video settings to reduce the resolution.
+- Keep the mouse in the middle of the screen as much as possible
+### Mobile App User Instructions
+- 1.Install MetaDota.apk and open
+- 2.Enter the setting interface in the upper right corner, enter the IP address and port number configured on the computer in the first line, and enter the IP address and port number of hfs in the second line, as shown in the figure below, so you should enter 192.168.100.123 and 80<br>     ![](/img/shot6.PNG "")
+- 3.Enter the requested match ID and your own player ID below, and click Generate
+- 4.Go take a shower and wait for the video to be generated
