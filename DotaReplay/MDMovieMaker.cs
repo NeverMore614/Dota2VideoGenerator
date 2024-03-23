@@ -150,7 +150,7 @@ namespace MetaDota.DotaReplay
                     zipProcess.Start();
                     zipProcess.WaitForExit();
                 }
-
+                File.Delete(Path.Combine(DotaClient.dotaCfgPath, "autoexec.cfg"));
             }
             generator.block = false;
         }
