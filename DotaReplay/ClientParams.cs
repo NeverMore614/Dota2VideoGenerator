@@ -18,5 +18,7 @@ namespace MetaDota.DotaReplay
         public const string DEMO_DIR = "demos";
         public const string REPLAY_CFG_DIR = "replayCfg";
         public const string CONFIG_DIR = "config";
+
+        public const string WEB_INVALID_REQUEST = "your request is invalid :";
     }
 }

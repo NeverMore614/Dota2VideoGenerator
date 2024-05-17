@@ -7,6 +7,7 @@ using System.Drawing;
 using System.Threading.Tasks;
 using MetaDota.Common.Native;
 using static SteamKit2.GC.Dota.Internal.CDOTAMatchMetadata;
+using System.Text.RegularExpressions;
 
 public class MDTools
 
@@ -99,6 +100,14 @@ public class MDTools
         // add a new line because user pressed enter at the end of their password
         Console.WriteLine();
         return password;
+    }
+
+    static Regex _matchRegex = new Regex("^[0-9]+_[0-9]+$");
+
+    public static bool CheckMatchValid(string match)
+    { 
+        if (string.IsNullOrEmpty(match)) return false;
+        return _matchRegex.IsMatch(match);
     }
 }
 

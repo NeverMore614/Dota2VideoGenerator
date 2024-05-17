@@ -14,9 +14,11 @@ namespace MetaDota.config
         public string steamPassword = "";
         public string serverIp = "";
         public string serverPort = "";
+        public string webServerUrl = "";
 
         private int _keyInputDelay = 500;
         private string _authGuardData = null;
+        private string _bearerAuth = null;
         public MDConfig() {
             string value = "";
             string fieldPath = "";
@@ -50,6 +52,14 @@ namespace MetaDota.config
                 if (string.IsNullOrEmpty(_authGuardData))
                     _authGuardData = null;
             }
+            fieldPath = $"config/bearer.txt";
+            if (File.Exists(fieldPath))
+            {
+                _bearerAuth = File.ReadAllText(fieldPath);
+                if (string.IsNullOrEmpty(_bearerAuth))
+                    _bearerAuth = null;
+            }
+
             fieldPath = $"config/keyInputDelay.txt";
             if (File.Exists(fieldPath))
             {
@@ -69,6 +79,11 @@ namespace MetaDota.config
         public string GetAuthGuardData()
         {
             return _authGuardData;
+        }
+
+        public string GetBearer()
+        {
+            return _bearerAuth;
         }
 
         public void SaveAuthGuardData(string data)

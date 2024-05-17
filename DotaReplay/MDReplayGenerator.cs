@@ -134,11 +134,26 @@ namespace MetaDota.DotaReplay
             File.WriteAllText(replayResultFilePath, EReplayGenerateResult.NotComplet.ToString());
         }
 
-        EReplayGenerateResult _GetResult()
+        EReplayGenerateResult _GetResult(WebMatchRequest webMatchRequest = null)
         {
             if (_downloadTask == null) return EReplayGenerateResult.NoTask;
 
             if (!_downloadTask.IsCompleted) return EReplayGenerateResult.NotComplet;
+
+            //set web request 
+            if (webMatchRequest != null)
+            {
+                webMatchRequest.over = true;
+                webMatchRequest.result = _downloadTask.Result == EReplayGenerateResult.Success ? "success" : "fail";
+                if (_downloadTask.Result == EReplayGenerateResult.Success)
+                {
+                    webMatchRequest.message = $"http://192.168.1.4:8080/{replayFilePath}" ;
+                }
+                else
+                {
+                    webMatchRequest.message = _downloadTask.Result.ToString();
+                }
+            }
 
             return _downloadTask.Result;
 
@@ -204,14 +219,15 @@ namespace MetaDota.DotaReplay
         }
 
 
-        public static EReplayGenerateResult GetResult(string request)
+        public static EReplayGenerateResult GetResult(string request, WebMatchRequest webMatchRequest = null)
         {
             MDReplayGenerator generator;
             if (!sMDReplayGeneratorMap.TryGetValue(request, out generator))
             {
                 return EReplayGenerateResult.NoTask;
             }
-            return generator._GetResult();
+            return generator._GetResult(webMatchRequest);
         }
+
     }
 }

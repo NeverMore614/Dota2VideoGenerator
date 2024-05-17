@@ -1,4 +1,5 @@
-﻿using System;
+﻿
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -131,7 +132,7 @@ namespace MetaDota.DotaReplay
                 {
                     clientSocket.Close();
                 }
-                   
+
 
             }
         }
@@ -161,13 +162,13 @@ namespace MetaDota.DotaReplay
                                     {
                                         match = true;
                                         break;
-                                        
+
                                     }
                                 }
                                 if (match)
                                 {
                                     result = "Has Task";
-                                    
+
                                 }
                                 else
                                 {
@@ -217,7 +218,7 @@ namespace MetaDota.DotaReplay
                     SocketClient socketClient = socketClients[i];
                     if (socketClient.Connect != null && socketClient.Connect.IsAlive)
                     {
-                        if (0 > --socketClient.Heartbeat )
+                        if (0 > --socketClient.Heartbeat)
                         {
                             socketClient.Close();
                         }

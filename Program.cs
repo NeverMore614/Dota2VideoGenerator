@@ -23,6 +23,7 @@ namespace ConsoleApp2
     {
         public static Queue<string> requestQueue = new Queue<string>();
         public static MDConfig config;
+        public static bool JobStart = false;
 
         static void test()
         {
@@ -31,6 +32,7 @@ namespace ConsoleApp2
         public async static Task Main(string[] args)
         {
 
+            JobStart = false;
 
             MDFile.Init();
             config = new MDConfig();
@@ -40,7 +42,16 @@ namespace ConsoleApp2
             //movie maker
             MDMovieMaker.Instance.Init();
 
-            MDSever.Instance.Start();
+            //launch mode
+            if (args.Length > 0 && args[0] == "WebMode")
+            {
+                MDWebServer.Instance.Start();
+            }
+            else
+            {
+                MDSever.Instance.Start();
+            }
+
             
             //demo downloader
             MDReplayDownloader.Instance.Init();
@@ -60,6 +71,7 @@ namespace ConsoleApp2
             }
 
             Console.WriteLine("dota2 launch success! start check replay");
+
 
             CheckDownloadTask().Wait();
 
@@ -93,7 +105,8 @@ namespace ConsoleApp2
             {
                 requestQueue.Enqueue(requestArry[i]);
             }
-            string requestStr = "";
+            JobStart = true;
+            string requestStr;
             while (true)
             {
                 await Task.Delay(ClientParams.DOWNLOAD_CHECK_INTERVAL);
