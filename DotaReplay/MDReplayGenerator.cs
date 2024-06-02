@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Net;
 using System.Text;
 using System.Threading.Tasks;
@@ -44,6 +45,7 @@ namespace MetaDota.DotaReplay
         public string replayResultFilePath = "";
 
         public bool block = false;
+        public bool OccurError = false;
         public EReplayGenerateResult eReplayGenerateResult = EReplayGenerateResult.Success;
 
 
@@ -64,12 +66,14 @@ namespace MetaDota.DotaReplay
             if (string.IsNullOrEmpty(_request))
             {
                 Console.WriteLine($"Parse requset fail :EmptyOrNull");
+                OccurError = true;
                 return false;
 
             }
             if (!_client.IsLogonDota)
             {
                 Console.WriteLine("Unable to Connect DotaServer");
+                OccurError = true;
                 return false;
                 //_client.Reconnect();
                 //await _Download(match_id);
@@ -78,6 +82,7 @@ namespace MetaDota.DotaReplay
             if (!IsGenerateIdle())
             {
                 Console.WriteLine("Task is processing");
+                OccurError = true;
                 return false;
             }
 
@@ -91,6 +96,7 @@ namespace MetaDota.DotaReplay
             catch (Exception e)
             {
                 Console.WriteLine($"Parse {_request} fail :{e.Message}");
+                OccurError = true;
                 return false;
             }
 
@@ -136,6 +142,16 @@ namespace MetaDota.DotaReplay
 
         EReplayGenerateResult _GetResult(WebMatchRequest webMatchRequest = null)
         {
+            if (OccurError)
+            {
+                //set web request 
+                if (webMatchRequest != null)
+                {
+                    webMatchRequest.over = true;
+                    webMatchRequest.result = "fail";
+                    webMatchRequest.message = "something woring~";
+                }
+            }
             if (_downloadTask == null) return EReplayGenerateResult.NoTask;
 
             if (!_downloadTask.IsCompleted) return EReplayGenerateResult.NotComplet;
@@ -145,14 +161,14 @@ namespace MetaDota.DotaReplay
             {
                 webMatchRequest.over = true;
                 webMatchRequest.result = _downloadTask.Result == EReplayGenerateResult.Success ? "success" : "fail";
-                if (_downloadTask.Result == EReplayGenerateResult.Success)
-                {
-                    webMatchRequest.message = $"http://192.168.1.4:8080/{replayFilePath}" ;
-                }
-                else
+                if (_downloadTask.Result != EReplayGenerateResult.Success)
                 {
                     webMatchRequest.message = _downloadTask.Result.ToString();
                 }
+                else
+                {
+                    webMatchRequest.message = replayFilePath;
+                }    
             }
 
             return _downloadTask.Result;

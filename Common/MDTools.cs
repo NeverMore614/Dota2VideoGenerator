@@ -109,6 +109,20 @@ public class MDTools
         if (string.IsNullOrEmpty(match)) return false;
         return _matchRegex.IsMatch(match);
     }
+
+    public static string RandomChar(int num)
+    {
+        char[] letters = new char[num];
+        Random random = new Random();
+
+        for (int i = 0; i < letters.Length; i++)
+        {
+            letters[i] = (char)random.Next(97, 123);
+        }
+
+        return new string(letters);
+    }
+
 }
 
 

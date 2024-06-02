@@ -12,7 +12,9 @@ using MetaDota.config;
 using static MetaDota.DotaReplay.MDReplayGenerator;
 using SteamKit2;
 using System.Net.Http;
+using Aliyun.OSS;
 using SimpleJSON;
+using static Dota2.GC.Dota.Internal.CMsgClientProvideSurveyResult;
 
 namespace MetaDota.DotaReplay
 {
@@ -20,7 +22,7 @@ namespace MetaDota.DotaReplay
 
     public class WebMatchRequest
     {
-        public int id;
+        public string id;
         public string request;
         public string result;
         public string message;
@@ -40,12 +42,14 @@ namespace MetaDota.DotaReplay
     }
     internal class MDWebServer : SingleTon<MDWebServer>
     {
+        private string requestFile = "webRequest.txt";
 
         private HttpClient _httpClient;
 
         private string _bearer;
 
         private WebMatchRequest _webMatchRequest;
+
 
         public MDWebServer()
         {
@@ -110,7 +114,19 @@ namespace MetaDota.DotaReplay
 
         async Task<string> GetMatchRequest()
         {
+
             _webMatchRequest.Reset();
+            if (File.Exists(requestFile))
+            {
+                string[] requests = File.ReadAllLines(requestFile);
+                if (requests.Length == 2)
+                {
+                    _webMatchRequest.id = requests[0];
+                    _webMatchRequest.request = requests[1];
+                    Console.WriteLine($"Get Match Request id = {_webMatchRequest.id} request = {_webMatchRequest.request}");
+                    return _webMatchRequest.request;
+                }
+            }
 
             string requestEndPoint = Program.config.webServerUrl + "/GetMatchRequest";
             HttpRequestMessage request = this.CreateRequest(HttpMethod.Get, requestEndPoint);
@@ -141,14 +157,25 @@ namespace MetaDota.DotaReplay
                 return null;
             }
             JSONNode node = JSON.Parse(resBodyStr);
-            _webMatchRequest.id = int.Parse(node["id"]);
+            _webMatchRequest.id = node["id"];
             _webMatchRequest.request = node["requestStr"];
+
+            if (File.Exists(requestFile)) {
+                File.Delete(requestFile);
+            }
+            File.WriteAllLines(requestFile, new string[]{ _webMatchRequest.id,  _webMatchRequest.request});
+
             Console.WriteLine($"Get Match Request id = {_webMatchRequest.id} request = {_webMatchRequest.request}");
             return _webMatchRequest.request;
         }
 
         async Task SendResult()
         {
+            if (_webMatchRequest.result.Equals("success"))
+            {
+                //upload aliyun oss
+                UploadAliyunOos();
+            }
             Console.WriteLine($"Send Match Request Result = {_webMatchRequest.result} message = {_webMatchRequest.message}");
             string requestEndPoint = Program.config.webServerUrl + $"/GenerateOver?id={_webMatchRequest.id}&state={_webMatchRequest.result}&message={_webMatchRequest.message}";
             HttpRequestMessage request = this.CreateRequest(HttpMethod.Post, requestEndPoint);
@@ -157,6 +184,13 @@ namespace MetaDota.DotaReplay
             {
                 response = _httpClient.SendAsync(request);
                 HttpStatusCode resStatusCoode = response.Result.StatusCode;
+                if (resStatusCoode == HttpStatusCode.OK)
+                {
+                    if (File.Exists(requestFile))
+                    {
+                        File.Delete(requestFile);
+                    }
+                }
             }
             catch (HttpRequestException e)
             {
@@ -164,6 +198,38 @@ namespace MetaDota.DotaReplay
             }
         }
 
+        private void UploadAliyunOos()
+        {
+            // yourEndpoint填写Bucket所在地域对应的Endpoint。以华东1（杭州）为例，Endpoint填写为https://oss-cn-hangzhou.aliyuncs.com。
+            var endpoint = "https://oss-cn-shanghai.aliyuncs.com";
+            // 从环境变量中获取访问凭证。运行本代码示例之前，请确保已设置环境变量OSS_ACCESS_KEY_ID和OSS_ACCESS_KEY_SECRET。
+            var accessKeyId = Environment.GetEnvironmentVariable("OSS_ACCESS_KEY_ID");
+            var accessKeySecret = Environment.GetEnvironmentVariable("OSS_ACCESS_KEY_SECRET");
+            // 填写Bucket名称，例如examplebucket。
+            var bucketName = "metadotares";
+            // 填写Object完整路径，完整路径中不能包含Bucket名称，例如exampledir/exampleobject.txt。
+            var objectName =  $"{_webMatchRequest.id}/{MDTools.RandomChar(6)}/video.mp4";
+            // 填写本地文件的完整路径。如果未指定本地路径，则默认从示例程序所属项目对应本地路径中上传文件。
+            var localFilename = Path.GetFullPath(_webMatchRequest.message);
+
+            // 创建OssClient实例。
+            var client = new OssClient(endpoint, accessKeyId, accessKeySecret);
+            try
+            {
+                // 上传文件。
+                var result = client.PutObject(bucketName, objectName, localFilename);
+                Console.WriteLine("Put object succeeded");
+                _webMatchRequest.message = $"https://metadotares.oss-cn-shanghai.aliyuncs.com/{objectName}";
+
+            }
+            catch (Exception ex)
+            {
+                _webMatchRequest.result = "fail";
+                _webMatchRequest.message = "Upload File Fail" + ex.Message;
+                Console.WriteLine("Put object failed, {0}", ex.Message);
+
+            }
+        }
         private HttpRequestMessage CreateRequest(HttpMethod httpMethod, string requestEndPoint)
         {
             var request = new HttpRequestMessage(httpMethod, requestEndPoint);

@@ -7,9 +7,11 @@
     <Nullable>enable</Nullable>
 	<LangVersion>10.0</LangVersion>
 	<PlatformTarget>x64</PlatformTarget>
+	<UseWindowsForms>False</UseWindowsForms>
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="Aliyun.OSS.SDK.NetCore" Version="2.13.0" />
     <PackageReference Include="Dota2" Version="0.11.0" />
     <PackageReference Include="SteamKit2" Version="2.5.0" />
   </ItemGroup>
@@ -19,6 +21,14 @@
       <HintPath>Interceptor.dll</HintPath>
     </Reference>
     <Reference Include="System.Windows.Forms" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Update="Properties\Settings.Designer.cs">
+      <DesignTimeSharedInput>True</DesignTimeSharedInput>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Settings.settings</DependentUpon>
+    </Compile>
   </ItemGroup>
 
   <ItemGroup>
@@ -51,6 +61,10 @@
     </None>
     <None Update="matchRequest.txt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="Properties\Settings.settings">
+      <Generator>SettingsSingleFileGenerator</Generator>
+      <LastGenOutput>Settings.Designer.cs</LastGenOutput>
     </None>
   </ItemGroup>
 
