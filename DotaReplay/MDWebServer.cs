@@ -24,6 +24,7 @@ namespace MetaDota.DotaReplay
     {
         public string id;
         public string request;
+        public string oldVideoUrl;
         public string result;
         public string message;
         public bool over;
@@ -119,10 +120,11 @@ namespace MetaDota.DotaReplay
             if (File.Exists(requestFile))
             {
                 string[] requests = File.ReadAllLines(requestFile);
-                if (requests.Length == 2)
+                if (requests.Length >= 3)
                 {
                     _webMatchRequest.id = requests[0];
                     _webMatchRequest.request = requests[1];
+                    _webMatchRequest.oldVideoUrl = requests[2];
                     Console.WriteLine($"Get Match Request id = {_webMatchRequest.id} request = {_webMatchRequest.request}");
                     return _webMatchRequest.request;
                 }
@@ -159,11 +161,11 @@ namespace MetaDota.DotaReplay
             JSONNode node = JSON.Parse(resBodyStr);
             _webMatchRequest.id = node["id"];
             _webMatchRequest.request = node["requestStr"];
-
+            _webMatchRequest.oldVideoUrl = node["url"];
             if (File.Exists(requestFile)) {
                 File.Delete(requestFile);
             }
-            File.WriteAllLines(requestFile, new string[]{ _webMatchRequest.id,  _webMatchRequest.request});
+            File.WriteAllLines(requestFile, new string[]{ _webMatchRequest.id,  _webMatchRequest.request, _webMatchRequest.oldVideoUrl });
 
             Console.WriteLine($"Get Match Request id = {_webMatchRequest.id} request = {_webMatchRequest.request}");
             return _webMatchRequest.request;
@@ -200,6 +202,7 @@ namespace MetaDota.DotaReplay
 
         private void UploadAliyunOos()
         {
+
             // yourEndpoint填写Bucket所在地域对应的Endpoint。以华东1（杭州）为例，Endpoint填写为https://oss-cn-hangzhou.aliyuncs.com。
             var endpoint = "https://oss-cn-shanghai.aliyuncs.com";
             // 从环境变量中获取访问凭证。运行本代码示例之前，请确保已设置环境变量OSS_ACCESS_KEY_ID和OSS_ACCESS_KEY_SECRET。
@@ -214,6 +217,22 @@ namespace MetaDota.DotaReplay
 
             // 创建OssClient实例。
             var client = new OssClient(endpoint, accessKeyId, accessKeySecret);
+            //删除已存在的视频
+            if (!string.IsNullOrEmpty(_webMatchRequest.oldVideoUrl))
+            {
+                try
+                {
+                    string deleteObjName = _webMatchRequest.oldVideoUrl.Substring(_webMatchRequest.oldVideoUrl.LastIndexOf("com/") + 4);
+                    // 删除文件。
+                    client.DeleteObject(bucketName, deleteObjName);
+                    Console.WriteLine("Delete object succeeded");
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine("Delete object failed. {0}", ex.Message);
+                }
+            }
+
             try
             {
                 // 上传文件。

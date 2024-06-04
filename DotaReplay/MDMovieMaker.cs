@@ -83,6 +83,12 @@ namespace MetaDota.DotaReplay
 
         }
 
+        public async Task Test()
+        {
+            await Task.Delay(3000);
+            _input.SendText("d");
+        }
+
         public override async Task Work(MDReplayGenerator generator)
         {
             _cfgFilePath = Path.Combine(ClientParams.REPLAY_CFG_DIR, "replayCfg.txt");
@@ -146,7 +152,7 @@ namespace MetaDota.DotaReplay
                     zipProcess.StartInfo.FileName = "ffmpeg.exe";
                     zipProcess.StartInfo.UseShellExecute = false;
                     zipProcess.StartInfo.RedirectStandardInput = true;
-                    zipProcess.StartInfo.Arguments = $"-y -r 30 -i {Path.GetFullPath(DotaClient.dotaMoviePath)}\\%04d.jpg -i {Path.GetFullPath(DotaClient.dotaMoviePath)}\\.wav replays\\{generator.match_id}_{generator.account_id}.mp4";
+                    zipProcess.StartInfo.Arguments = $"-y -r 30 -i {Path.GetFullPath(DotaClient.dotaMoviePath)}\\%08d.jpg -i {Path.GetFullPath(DotaClient.dotaMoviePath)}\\.wav replays\\{generator.match_id}_{generator.account_id}.mp4";
                     zipProcess.Start();
                     zipProcess.WaitForExit();
                 }

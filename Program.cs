@@ -41,7 +41,6 @@ namespace ConsoleApp2
 
             //movie maker
             MDMovieMaker.Instance.Init();
-
             //launch mode
             if (args.Length > 0 && args[0] == "WebMode")
             {
