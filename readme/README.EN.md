@@ -1,4 +1,5 @@
 ## Dota2 Kill Highlights Generator Instructions for Use
+## Thank for the video analysis project: https://github.com/dotabuff/manta
 ### you need to download
 - PC generation tool + server：MetaDota.zip
 - Android mobile application：MetaDota.apk
